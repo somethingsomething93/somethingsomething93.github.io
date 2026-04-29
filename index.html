@@ -161,6 +161,124 @@
             border-color: var(--green);
         }
 
+#loginScreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 5, 0.75);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.loginBox {
+    background: #0d0d0d;
+    border: 1px solid #00ff66;
+    padding: 30px;
+    border-radius: 18px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 0 25px rgba(0,255,102,0.2);
+    animation: fadeIn 0.4s ease;
+}
+
+.loginBox h1 {
+    margin-bottom: 20px;
+    color: #00ff66;
+    text-shadow: 0 0 10px #00ff66;
+}
+
+.loginBox input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #1f1f1f;
+    background: #111;
+    color: white;
+    margin-bottom: 12px;
+    outline: none;
+}
+
+.loginBox input:focus {
+    border-color: #00ff66;
+    box-shadow: 0 0 10px rgba(0,255,102,0.3);
+}
+
+.loginBox button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #00ff66;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.loginBox button:hover {
+    filter: brightness(1.2);
+}
+
+#errorMsg {
+    margin-top: 10px;
+    color: red;
+    font-size: 14px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.3s;
+}
+
+/* fade out */
+.fadeOut {
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.3s;
+}
+
+/* fade out */
+.fadeOut {
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+
         iframe {
             width: 100%;
             height: calc(100% - 54px);
@@ -169,7 +287,29 @@
     </style>
 </head>
 
+<div id="deltaruneMenu" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:60; align-items:center; justify-content:center;">
+    <div style="background:#0d0d0d; padding:30px; border-radius:18px; border:1px solid #00ff66; width:320px; text-align:center; box-shadow:0 0 25px rgba(0,255,102,0.2);">
+        <h2 style="color:#00ff66; margin-bottom:20px;">Select Chapter</h2>
+
+        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter1/index.html')">Chapter 1</div>
+        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter2/index.html')">Chapter 2</div>
+        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter3/index.html')">Chapter 3</div>
+        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter4/index.html')">Chapter 4</div>
+
+        <button class="tool" style="margin-top:15px;" onclick="closeDeltaruneMenu()">Close</button>
+    </div>
+</div>
+
 <body>
+<div id="loginScreen">
+    <div class="loginBox">
+        <h1>Access Required</h1>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button id="loginBtn">Enter</button>
+        <p id="errorMsg"></p>
+    </div>
+</div>
+
     <canvas id="bg"></canvas>
 
     <header>
@@ -197,6 +337,8 @@
             <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/angrybirds.html')">Angry Birds</div>
 
             <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/ragdollarcher.html')">ARC</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/arthur.html')">Arthurs Nightmare</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/balatro/index.html')">Balatro</div>
 
@@ -226,7 +368,7 @@
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html')">Deltatraveler</div>
 
-            <div class="game" onclick="selectGame('https://jesus.churchinhuntsville.org/resources/semag/deltarune/index.html')">Deltarune</div>
+            <div class="game" onclick="openDeltaruneMenu()">Deltarune</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html')">Dino</div>
 
@@ -238,17 +380,15 @@
 
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/724.html')">Endoparasitic 2</div>
             
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/585.html')">Fallout</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/585.html')">Fallout 1</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/games/fo2/index.html')">Fallout 2</div>
 
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-fnaf/')">FNAF Collection</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html')">Flappy Bird</div>
 
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/fruit-ninja/index.html')">Fruit Ninja</div>
-
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/557.html')">Getting Over It</div>
-
-            <div class="game" onclick="selectGame('https://ubg98.github.io/Gobdun/')">Gobdun</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html')">Granny 1</div>
 
@@ -273,6 +413,8 @@
             <div class="game" onclick="selectGame('https://noredink.com.de/zones/h/justoneboss/')">Just One Boss</div>
 
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/542-a.html')">Karlson</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/legostarwars.html')">Lego Star Wars</div>
 
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false')">Lemmings</div>
 
@@ -303,6 +445,8 @@
             <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/particle-clicker/')">Particle Clicker</div>
 
             <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/pizzatower.html')">Pizza Tower</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/games/raft/index.html')">Raft</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/bippinbits-ravenhaul/index.html')">Ravenhaul</div>
 
@@ -311,6 +455,8 @@
             <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/shogun.html/')">Showgun Showdown</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/318.html')">Side Effects</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/games/slender/index.html')">Slender: The Eight Pages</div>
 
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/796.html')">Slendytubbies</div>
 
@@ -323,6 +469,18 @@
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/martintale-spirit-dungeons/index.html')">Spirit Dungeons</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/789.html')">Stardew Valley</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/games/nsmb/index.html')">Super Mario Bros</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/smgds.html')">Super Mario Galaxy</div>
+            
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-binding-of-isaac/')">The Binding of Isaac</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tboiw.html')">The Binding of Isaac Wrath Of The Lamb: Eternal</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tloz.html')">The Legend Of Zelda: Ocarina Of Time</div>
+            
+            <div class="game" onclick="selectGame('https://truffled.lol/games/there-is-no-game/index.html')">There Is No Game</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/620.html')">Three Goblets</div>
 
@@ -355,6 +513,53 @@
 
 
     <script>
+    const deltaruneMenu = document.getElementById("deltaruneMenu");
+
+function openDeltaruneMenu() {
+    deltaruneMenu.style.display = "flex";
+}
+
+function closeDeltaruneMenu() {
+    deltaruneMenu.style.display = "none";
+}
+    
+const PASSWORD = "999043";
+
+const loginScreen = document.getElementById("loginScreen");
+const loginBox = document.querySelector(".loginBox");
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("passwordInput");
+const errorMsg = document.getElementById("errorMsg");
+
+function unlock() {
+    localStorage.setItem("vaultUnlocked", "true");
+
+    loginScreen.classList.add("fadeOut");
+
+    setTimeout(() => {
+        loginScreen.style.display = "none";
+        document.body.style.overflow = "auto";
+    }, 500);
+}
+
+loginBtn.onclick = () => {
+    if (passwordInput.value === PASSWORD) {
+        errorMsg.textContent = "";
+        unlock();
+    } else {
+        errorMsg.textContent = "Wrong password";
+        passwordInput.value = "";
+
+        // shake animation
+        loginBox.classList.remove("shake");
+        void loginBox.offsetWidth;
+        loginBox.classList.add("shake");
+    }
+};
+
+passwordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") loginBtn.click();
+});
         const path = document.getElementById("draw");
         const content = document.getElementById("content");
         const totalLength = path.getTotalLength();
@@ -470,15 +675,6 @@
         }
 
         window.selectGame = selectGame;
-
-const PASSWORD = "999043";
-
-let entered = prompt("Enter password:");
-
-if (entered !== PASSWORD) {
-    document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:20%;font-family:sans-serif;'>Access Denied</h1>";
-    throw new Error("Wrong password");
-}
 
         document.getElementById("close").onclick = () => {
             const animation = player.animate(
