@@ -1,334 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>‎ </title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault</title>
 
-    <style>
-        :root {
-            --bg: #050505;
-            --panel: #101010;
-            --line: #1f1f1f;
-            --green: #00ff66;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            color: white;
-            font-family: Arial, Helvetica, sans-serif;
-            overflow: hidden;
-        }
-
-        canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.92);
-            border-bottom: 1px solid var(--green);
-            z-index: 20;
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            color: var(--green);
-            text-shadow: 0 0 14px var(--green);
-        }
-
-        #intro {
-            position: absolute;
-            top: 72px;
-            left: 0;
-            right: 0;
-            height: 290px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        #sigil {
-            width: 260px;
-            height: 260px;
-        }
-
-        main {
-            position: relative;
-            z-index: 3;
-            max-width: 1200px;
-            margin: auto;
-            padding: 370px 22px 40px;
-            opacity: 0;
-            transition: 0.6s;
-        }
-
-        .search {
-            width: 100%;
-            padding: 16px 18px;
-            border-radius: 16px;
-            background: #0d0d0d;
-            border: 1px solid var(--line);
-            color: white;
-            font-size: 18px;
-            outline: none;
-        }
-
-        .search:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.25);
-        }
-
-        .grid {
-            margin-top: 22px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-        }
-
-        .game {
-            padding: 18px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, #141414, #0c0c0c);
-            border: 1px solid var(--line);
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.22s;
-        }
-
-        .game:hover {
-            transform: translateY(-4px);
-            border-color: var(--green);
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.2);
-        }
-
-        #player {
-            display: none;
-            position: fixed;
-            top: 72px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 50;
-            opacity: 0;
-        }
-
-        .toolbar {
-            height: 54px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 12px;
-            border-bottom: 1px solid var(--green);
-        }
-
-        .tool {
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--line);
-            background: #111;
-            color: white;
-            cursor: pointer;
-        }
-
-        .tool:hover {
-            border-color: var(--green);
-        }
-
-#loginScreen {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 5, 5, 0.75);
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
 }
-
-.loginBox {
-    background: #0d0d0d;
-    border: 1px solid #00ff66;
-    padding: 30px;
-    border-radius: 18px;
-    text-align: center;
-    width: 300px;
-    box-shadow: 0 0 25px rgba(0,255,102,0.2);
-    animation: fadeIn 0.4s ease;
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
 }
-
-.loginBox h1 {
-    margin-bottom: 20px;
-    color: #00ff66;
-    text-shadow: 0 0 10px #00ff66;
+.main-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1100px;
+  height: 700px;
+  background: black;
+  border: 3px solid #00ff00;
+  display: flex;
 }
-
-.loginBox input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #1f1f1f;
-    background: #111;
-    color: white;
-    margin-bottom: 12px;
-    outline: none;
+.sidebar {
+  width: 260px;
+  border-right: 2px solid #00ff00;
+  padding: 10px;
+  text-align: center;
+  overflow-y: auto;
 }
-
-.loginBox input:focus {
-    border-color: #00ff66;
-    box-shadow: 0 0 10px rgba(0,255,102,0.3);
+.nav-title {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
-
-.loginBox button {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    background: #00ff66;
-    color: black;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
+.sidebar .section {
+  margin: 8px 0;
+  cursor: pointer;
+  text-decoration: underline;
 }
-
-.loginBox button:hover {
-    filter: brightness(1.2);
+.sidebar img {
+  display: block;
+  margin: 8px auto;
 }
-
-#errorMsg {
-    margin-top: 10px;
-    color: red;
-    font-size: 14px;
+.content {
+  flex: 1;
+  padding: 15px;
+  position: relative;
+  overflow-y: auto;
 }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(.9); }
-    to { opacity: 1; transform: scale(1); }
+.item {
+  margin: 10px 0;
+  cursor: pointer;
+  text-decoration: underline;
 }
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
+.viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  justify-content: center; 
+  align-items: center;
+  z-index: 9999;
 }
-
-.shake {
-    animation: shake 0.3s;
+.viewer iframe {
+  flex: 1;
+  border: none;
 }
-
-/* fade out */
-.fadeOut {
-    animation: fadeOut 0.5s forwards;
+.controls {
+  padding: 5px;
+  border-bottom: 2px solid #00ff00;
 }
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+button {
+  background: black;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  margin-right: 10px;
+  cursor: pointer;
 }
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
+.bottom-gifs {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
-
-.shake {
-    animation: shake 0.3s;
+.bottom-gifs img {
+  margin: 0 5px;
 }
-
-/* fade out */
-.fadeOut {
-    animation: fadeOut 0.5s forwards;
+.counter {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
 }
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+.game-window {
+  width: 900px;
+  height: 550px;
+  background: black;
+  border: 3px solid #00ff00;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-
-
-        iframe {
-            width: 100%;
-            height: calc(100% - 54px);
-            border: none;
-        }
-    </style>
+.game-window iframe {
+  width: 1200px; 
+  height: 800px;
+  border: none;
+  transform: scale(0.75); 
+  transform-origin: top left;
+}
+.controls {
+  border-bottom: 2px solid #00ff00;
+  padding: 5px;
+}
+</style>
 </head>
 
-<div id="deltaruneMenu" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:60; align-items:center; justify-content:center;">
-    <div style="background:#0d0d0d; padding:30px; border-radius:18px; border:1px solid #00ff66; width:320px; text-align:center; box-shadow:0 0 25px rgba(0,255,102,0.2);">
-        <h2 style="color:#00ff66; margin-bottom:20px;">Select Chapter</h2>
-
-        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter1/index.html')">Chapter 1</div>
-        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter2/index.html')">Chapter 2</div>
-        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter3/index.html')">Chapter 3</div>
-        <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter4/index.html')">Chapter 4</div>
-
-        <button class="tool" style="margin-top:15px;" onclick="closeDeltaruneMenu()">Close</button>
-    </div>
-</div>
-
 <body>
-<div id="loginScreen">
-    <div class="loginBox">
-        <h1>Access Required</h1>
-        <input type="password" id="passwordInput" placeholder="Enter password">
-        <button id="loginBtn">Enter</button>
-        <p id="errorMsg"></p>
+<canvas id="matrix"></canvas>
+
+<div class="main-box">
+  <div class="sidebar">
+    <div class="nav-title">NAVIGATION</div>
+
+    <div class="section" onclick="show('games')">Games</div>
+    <div class="section" onclick="show('movies')">Movies</div>
+    <div class="section" onclick="show('anime')">Anime</div>
+    <div class="section" onclick="show('tools')">Tools</div>
+
+    <!-- Retro GIF clutter -->
+<img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTk0bXo3cjg4anpsYnE2bXJheXNzMTd3a3p3ZDYzcmp5ZHZnMDZteiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EdBq6OQN7JUly/giphy.gif" width="120">
+<img src="https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif" width="120">
+<img src="https://web.archive.org/web/20091027122130im_/http://geocities.com/DeathSquadCP/imagesource/atomic.gif" width="120">
+<img src="https://web.archive.org/web/20091027104647im_/http://geocities.com/PicketFence/1350/anisaucer.gif" width="120">
+  </div>
+
+  <div class="content" id="content">
+    <h2>Welcome</h2>
+    <p>Select something on the left.</p>
+
+<div class="viewer" id="viewer">
+  <div class="game-window">
+    <div class="controls">
+      <button onclick="closeViewer()">Close</button>
+      <button onclick="fullscreenGame()">Fullscreen</button>
     </div>
+    <iframe id="frame"></iframe>
+  </div>
 </div>
 
-    <canvas id="bg"></canvas>
-
-    <header>
-        <div class="logo">Port Vault</div>
-    </header>
-
-    <section id="intro">
-        <svg id="sigil" viewBox="0 0 260 260">
-            <path id="draw" d="M130 12 L150 42 L193 33 L196 76 L236 94 L214 130 L236 166 L196 184 L193 227 L150 218 L130 248 L110 218 L67 227 L64 184 L24 166 L46 130 L24 94 L64 76 L67 33 L110 42 Z M130 72 A58 58 0 1 1 129.9 72" fill="none" stroke="#00ff66" stroke-width="4" stroke-linejoin="round" />
-        </svg>
-    </section>
-
-    <main id="content">
-        <input class="search" id="search" placeholder="Search games...">
-
-        <div class="grid">
+    <!-- Bottom chaos GIFs -->
+    <div class="bottom-gifs">
+<img src="https://web.archive.org/web/20091027092455im_/http://www.geocities.com/ghostbuster892002/Megatron_20Icon.gif" width="50">
+<img src="https://web.archive.org/web/20091027172221im_/http://geocities.com/Area51/Hollow/3594/starlogo.gif" width="50">
+<img src="https://web.archive.org/web/20091027075209im_/http://geocities.com/richard_sakol/advertise.gif" width="50">
+    </div>
 
 
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/1/index.html')">1</div>
+<script>
+// MATRIX EFFECT
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = "01";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+for (let x = 0; x < columns; x++) drops[x] = 1;
+
+function draw() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#00ff00";
+  ctx.font = fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = letters[Math.floor(Math.random() * letters.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+      drops[i] = 0;
+
+    drops[i]++;
+  }
+}
+setInterval(draw, 33);
+
+function show(type) {
+  const content = document.getElementById("content");
+
+  let html = "";
+
+  if (type === "games") {
+    html = `<h2>Games</h2>
+                <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/1/index.html')">1</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/2048/index.html')">2048</div>
 
@@ -494,232 +373,42 @@
 
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/554.html')">Yandere Simulator</div>
 
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
+  } else if (type === "movies") {
+    html = `<h2>Movies</h2>
+    <div class="item" onclick="selectGame('https://watchflix.to')">Movies</div>`;
+  } else if (type === "anime") {
+    html = `<h2>Anime</h2>
+    <div class="item" onclick="selectGame('https://hianime.ms')">Animes</div>`;
+  } else if (type === "tools") {
+    html = `<h2>Tools</h2>
+    <div class="item" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>`;
+  }
 
-
-        </div>
-    </main>
-
-    <div id="player">
-        <div class="toolbar">
-            <button class="tool" id="close">✕ Close</button>
-            <button class="tool" id="full">⛶ Fullscreen</button>
-        </div>
-
-        <iframe id="frame"></iframe>
-    </div>
-
-
-
-
-    <script>
-    const deltaruneMenu = document.getElementById("deltaruneMenu");
-
-function openDeltaruneMenu() {
-    deltaruneMenu.style.display = "flex";
+  html += document.getElementById("viewer").outerHTML;
+  content.innerHTML = html;
 }
 
-function closeDeltaruneMenu() {
-    deltaruneMenu.style.display = "none";
-}
-    
-const PASSWORD = "999043";
+function selectGame(url) {
+  const viewer = document.getElementById("viewer");
+  const frame = document.getElementById("frame");
 
-const loginScreen = document.getElementById("loginScreen");
-const loginBox = document.querySelector(".loginBox");
-const loginBtn = document.getElementById("loginBtn");
-const passwordInput = document.getElementById("passwordInput");
-const errorMsg = document.getElementById("errorMsg");
-
-function unlock() {
-    localStorage.setItem("vaultUnlocked", "true");
-
-    loginScreen.classList.add("fadeOut");
-
-    setTimeout(() => {
-        loginScreen.style.display = "none";
-        document.body.style.overflow = "auto";
-    }, 500);
+  frame.src = url;
+  viewer.style.display = "flex";
 }
 
-loginBtn.onclick = () => {
-    if (passwordInput.value === PASSWORD) {
-        errorMsg.textContent = "";
-        unlock();
-    } else {
-        errorMsg.textContent = "Wrong password";
-        passwordInput.value = "";
+function closeViewer() {
+  const viewer = document.getElementById("viewer");
+  const frame = document.getElementById("frame");
 
-        // shake animation
-        loginBox.classList.remove("shake");
-        void loginBox.offsetWidth;
-        loginBox.classList.add("shake");
-    }
-};
+  frame.src = "";
+  viewer.style.display = "none";
+}
 
-passwordInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") loginBtn.click();
-});
-        const path = document.getElementById("draw");
-        const content = document.getElementById("content");
-        const totalLength = path.getTotalLength();
-
-        path.style.strokeDasharray = totalLength;
-        path.style.strokeDashoffset = totalLength;
-
-        path.animate(
-            [{
-                    strokeDashoffset: totalLength
-                },
-                {
-                    strokeDashoffset: 0
-                }
-            ], {
-                duration: 1000,
-                fill: "forwards"
-            }
-        );
-
-        setTimeout(() => {
-            document.body.style.overflow = "auto";
-            content.style.opacity = "1";
-        }, 1000);
-
-        const canvas = document.getElementById("bg");
-        const ctx = canvas.getContext("2d");
-
-        let width;
-        let height;
-        let mouseX = -999;
-        let mouseY = -999;
-
-        function resizeCanvas() {
-            width = canvas.width = innerWidth;
-            height = canvas.height = innerHeight;
-        }
-
-        resizeCanvas();
-        addEventListener("resize", resizeCanvas);
-
-        addEventListener("mousemove", (event) => {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
-        });
-
-        const particles = Array.from({
-            length: 70
-        }, () => ({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            vx: (Math.random() - 0.5) * 0.45,
-            vy: (Math.random() - 0.5) * 0.45,
-            r: 1 + Math.random() * 2
-        }));
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, width, height);
-
-            for (const particle of particles) {
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-
-                if (particle.x < 0 || particle.x > width) particle.vx *= -1;
-                if (particle.y < 0 || particle.y > height) particle.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(0,255,102,.8)";
-                ctx.fill();
-
-                const dx = mouseX - particle.x;
-                const dy = mouseY - particle.y;
-                const distance = Math.hypot(dx, dy);
-
-                if (distance < 120) {
-                    ctx.beginPath();
-                    ctx.moveTo(particle.x, particle.y);
-                    ctx.lineTo(mouseX, mouseY);
-                    ctx.strokeStyle = `rgba(0,255,102,${(1 - distance / 120) * 0.35})`;
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                }
-            }
-
-            requestAnimationFrame(animateParticles);
-        }
-
-        animateParticles();
-
-        const player = document.getElementById("player");
-        const frame = document.getElementById("frame");
-
-        function selectGame(url) {
-            frame.src = url;
-            player.style.display = "block";
-
-            player.animate(
-                [{
-                        opacity: 0,
-                        transform: "scale(.96)"
-                    },
-                    {
-                        opacity: 1,
-                        transform: "scale(1)"
-                    }
-                ], {
-                    duration: 260,
-                    fill: "forwards",
-                    easing: "ease-out"
-                }
-            );
-        }
-
-        window.selectGame = selectGame;
-
-        document.getElementById("close").onclick = () => {
-            const animation = player.animate(
-                [{
-                        opacity: 1,
-                        transform: "scale(1)"
-                    },
-                    {
-                        opacity: 0,
-                        transform: "scale(.96)"
-                    }
-                ], {
-                    duration: 220,
-                    fill: "forwards",
-                    easing: "ease-in"
-                }
-            );
-
-            animation.onfinish = () => {
-                player.style.display = "none";
-                frame.src = "";
-            };
-        };
-
-        document.getElementById("full").onclick = () => {
-            if (frame.requestFullscreen) {
-                frame.requestFullscreen();
-            }
-        };
-
-document.getElementById("search").oninput = (event) => {
-    const query = event.target.value.toLowerCase();
-    const games = document.querySelectorAll(".game");
-
-    games.forEach(game => {
-        const name = game.textContent.toLowerCase();
-
-        if (name.includes(query)) {
-            game.style.display = "block";
-        } else {
-            game.style.display = "none";
-        }
-    });
-};
-    </script>
+function fullscreenGame() {
+  const frame = document.getElementById("frame");
+  if (frame.requestFullscreen) frame.requestFullscreen();
+}
+</script>
 </body>
-
 </html>
