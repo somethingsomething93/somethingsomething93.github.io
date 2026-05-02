@@ -133,7 +133,6 @@ button {
     <div class="nav-title">NAVIGATION</div>
 
     <div class="section" onclick="show('games')">Games</div>
-    <div class="section" onclick="show('movies')">Movies</div>
     <div class="section" onclick="show('anime')">Anime</div>
     <div class="section" onclick="show('tools')">Tools</div>
 
@@ -418,9 +417,6 @@ function show(type) {
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/554.html')">Yandere Simulator</div>
 
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
-  } else if (type === "movies") {
-    html = `<h2>Movies</h2>
-    <div class="item" onclick="selectGame('https://www.cineby.sc/')">Movies</div>`;
   } else if (type === "anime") {
     html = `<h2>Anime</h2>
     <div class="item" onclick="selectGame('https://hianime.ms')">Animes</div>`;
