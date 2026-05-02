@@ -170,72 +170,80 @@ button {
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
-let fontSize = 14;
+let fontSize = 18;
 let charWidth;
-let cols, rows;
-let grid = [];
+let rows;
+
+const rowData = [];
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-}
 
-function measureFont() {
-  ctx.font = fontSize + "px monospace";
+  ctx.font = `${fontSize}px monospace`;
   charWidth = ctx.measureText("0").width;
-}
 
-function initGrid() {
-  measureFont();
-
-  cols = Math.ceil(canvas.width / charWidth);
   rows = Math.ceil(canvas.height / fontSize);
 
-  grid = [];
+  rowData.length = 0;
+
   for (let y = 0; y < rows; y++) {
-    let row = [];
-    for (let x = 0; x < cols; x++) {
-      row.push(Math.random() > 0.5 ? "1" : "0");
-    }
-    grid.push(row);
+    rowData.push({
+      offset: Math.random() * canvas.width,
+      speed: 60 + Math.random() * 40,
+      direction: y % 2 === 0 ? -1 : 1,
+text:
+  y % 2 === 0
+    ? "10".repeat(200)
+    : "01".repeat(200)
+    });
   }
 }
 
-function setup() {
-  resizeCanvas();
-  initGrid();
-}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-window.addEventListener("resize", setup);
-setup();
+let lastTime = 0;
 
-function draw() {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+function draw(time) {
+  const delta = (time - lastTime) / 1000;
+  lastTime = time;
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "#00ff00";
-  ctx.font = fontSize + "px monospace";
+  ctx.font = `${fontSize}px monospace`;
 
   for (let y = 0; y < rows; y++) {
-    let direction = y % 2 === 0 ? 1 : -1;
+    const row = rowData[y];
 
-    // shift row
-    if (direction === 1) {
-      grid[y].push(Math.random() > 0.5 ? "1" : "0");
-      grid[y].shift();
-    } else {
-      grid[y].unshift(Math.random() > 0.5 ? "1" : "0");
-      grid[y].pop();
+    row.offset += row.speed * row.direction * delta;
+
+    if (row.direction === -1 && row.offset < -charWidth * 2) {
+      row.offset = 0;
     }
 
-    // draw row
-    for (let x = 0; x < cols; x++) {
-      ctx.fillText(grid[y][x], x * charWidth, y * fontSize);
+    if (row.direction === 1 && row.offset > charWidth * 2) {
+      row.offset = 0;
+    }
+
+    ctx.fillStyle = "rgba(0, 255, 0, 0.28)";
+
+    const repeatCount = Math.ceil(canvas.width / (row.text.length * charWidth)) + 3;
+
+    for (let i = -1; i < repeatCount; i++) {
+      ctx.fillText(
+        row.text,
+        i * row.text.length * charWidth + row.offset,
+        y * fontSize
+      );
     }
   }
+
+  requestAnimationFrame(draw);
 }
 
-setInterval(draw, 40);
+requestAnimationFrame(draw);
 
 function show(type) {
   const content = document.getElementById("content");
@@ -437,9 +445,7 @@ function show(type) {
     <div class="item" onclick="selectGame('https://98.js.org/')">98.js</div>
     <div class="item" onclick="selectGame('https://emupedia.net/emupedia-app-fluid-paint/')">Fluid Paint</div>
     <div class="item" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>
-    
     <div class="item" onclick="selectGame('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html')">TTS</div>
-    
     <div class="item" onclick="selectGame('https://windows93.net/')">Windows 93</div>
     <div class="item" onclick="selectGame('https://windows96.net/')">Windows 96</div>
     <div class="item" onclick="selectGame('https://windows-xp.on.websim.com/')">Windows XP</div>`;
