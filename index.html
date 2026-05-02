@@ -171,34 +171,72 @@ button {
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
-canvas.height = window.innerHeight;
-canvas.width = window.innerWidth;
+let fontSize = 14;
+let charWidth;
+let cols, rows;
+let grid = [];
 
-const letters = "01";
-const fontSize = 14;
-const columns = canvas.width / fontSize;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
-const drops = [];
-for (let x = 0; x < columns; x++) drops[x] = 1;
+function measureFont() {
+  ctx.font = fontSize + "px monospace";
+  charWidth = ctx.measureText("0").width;
+}
+
+function initGrid() {
+  measureFont();
+
+  cols = Math.ceil(canvas.width / charWidth);
+  rows = Math.ceil(canvas.height / fontSize);
+
+  grid = [];
+  for (let y = 0; y < rows; y++) {
+    let row = [];
+    for (let x = 0; x < cols; x++) {
+      row.push(Math.random() > 0.5 ? "1" : "0");
+    }
+    grid.push(row);
+  }
+}
+
+function setup() {
+  resizeCanvas();
+  initGrid();
+}
+
+window.addEventListener("resize", setup);
+setup();
 
 function draw() {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#00ff00";
   ctx.font = fontSize + "px monospace";
 
-  for (let i = 0; i < drops.length; i++) {
-    const text = letters[Math.floor(Math.random() * letters.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+  for (let y = 0; y < rows; y++) {
+    let direction = y % 2 === 0 ? 1 : -1;
 
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
-      drops[i] = 0;
+    // shift row
+    if (direction === 1) {
+      grid[y].push(Math.random() > 0.5 ? "1" : "0");
+      grid[y].shift();
+    } else {
+      grid[y].unshift(Math.random() > 0.5 ? "1" : "0");
+      grid[y].pop();
+    }
 
-    drops[i]++;
+    // draw row
+    for (let x = 0; x < cols; x++) {
+      ctx.fillText(grid[y][x], x * charWidth, y * fontSize);
+    }
   }
 }
-setInterval(draw, 33);
+
+setInterval(draw, 40);
 
 function show(type) {
   const content = document.getElementById("content");
@@ -382,7 +420,7 @@ function show(type) {
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
   } else if (type === "movies") {
     html = `<h2>Movies</h2>
-    <div class="item" onclick="selectGame('https://watchflix.to')">Movies</div>`;
+    <div class="item" onclick="selectGame('https://www.cineby.sc/')">Movies</div>`;
   } else if (type === "anime") {
     html = `<h2>Anime</h2>
     <div class="item" onclick="selectGame('https://hianime.ms')">Animes</div>`;
