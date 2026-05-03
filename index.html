@@ -1,543 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vault</title>
+    <meta charset="UTF-8">
+    <title>Vault</title>
+    <style>
+        body {
+            margin: 0;
+            background: #c0c0c0;
+            font-family: "Times New Roman", serif;
+            color: black;
+        }
 
-<style>
-body {
-  margin: 0;
-  overflow: hidden;
-  background: black;
-  color: #00ff00;
-  font-family: "Courier New", monospace;
-}
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-.main-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 1100px;
-  height: 700px;
-  background: black;
-  border: 3px solid #00ff00;
-  display: flex;
-}
-.sidebar {
-  width: 260px;
-  border-right: 2px solid #00ff00;
-  padding: 10px;
-  text-align: center;
-  overflow-y: auto;
-}
-.nav-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.section {
-  margin: 8px 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.sidebar img {
-  display: block;
-  margin: 8px auto;
-}
-.content {
-  flex: 1;
-  padding: 15px;
-  position: relative;
-  overflow-y: auto;
-}
-.item {
-  margin: 10px 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.viewer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
-  display: none;
-  justify-content: center; 
-  align-items: center;
-  z-index: 9999;
-}
-.viewer iframe {
-  flex: 1;
-  border: none;
-}
-.controls {
-  padding: 5px;
-  border-bottom: 2px solid #00ff00;
-}
-.button {
-  background: black;
-  color: #00ff00;
-  border: 1px solid #00ff00;
-  margin-right: 10px;
-  cursor: pointer;
-}
-.bottom-gifs {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.bottom-gifs img {
-  margin: 0 5px;
-}
-.counter {
-  position: absolute;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.game-window {
-  width: 900px;
-  height: 550px;
-  background: black;
-  border: 3px solid #00ff00;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.game-window iframe {
-  width: 1200px; 
-  height: 800px;
-  border: none;
-  transform: scale(0.75); 
-  transform-origin: top left;
-}
-.controls {
-  border-bottom: 2px solid #00ff00;
-  padding: 5px;
-}
-#loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  font-family: "Courier New", monospace;
-  color: #00ff00;
-}
-.loading-box {
-  width: 300px;
-  border: 2px solid #00ff00;
-  padding: 15px;
-  text-align: center;
-}
+        /* HEADER */
+        .header {
+            background: #000080;
+            color: white;
+            padding: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-bottom: 3px solid black;
+        }
 
-.loading-title {
-  margin-bottom: 10px;
-}
-.loading-bar {
-  width: 100%;
-  height: 20px;
-  border: 2px solid #00ff00;
-  background: black;
-  overflow: hidden;
-}
-.loading-fill {
-  height: 100%;
-  width: 0%;
-  background: #00ff00;
-  animation: loadAnim 1.5s linear forwards;
-}
-@keyframes loadAnim {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-</style>
+        .subheader {
+            font-size: 12px;
+            padding: 5px 10px;
+            background: #e0e0e0;
+            border-bottom: 2px solid #999;
+        }
+
+        /* LAYOUT */
+        .container {
+            display: flex;
+            padding: 10px;
+        }
+
+        .section {
+            flex: 1;
+            margin: 5px;
+            background: #f2f2f2;
+            border: 2px solid #666;
+            padding: 10px;
+            min-height: 400px;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            border-bottom: 1px solid #999;
+            padding-bottom: 5px;
+        }
+
+        /* BUTTONS */
+        .game {
+            background: #d9d9d9;
+            border: 1px solid #444;
+            padding: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .game:hover {
+            background: #ffffff;
+        }
+
+        /* GIF DECOR */
+        .gifbar {
+            padding: 5px;
+            text-align: center;
+            background: #ddd;
+            border-bottom: 2px solid #999;
+        }
+
+        .gifbar img {
+            height: 40px;
+            margin: 0 5px;
+            image-rendering: pixelated;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            background: #fff;
+            border: 3px solid black;
+        }
+
+        iframe {
+            width: 100%;
+            height: 90%;
+            border: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            background: #ccc;
+            border-bottom: 2px solid #666;
+        }
+
+        .btn {
+            padding: 3px 8px;
+            border: 1px solid #333;
+            background: #eee;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: #fff;
+        }
+
+        /* MARQUEE STYLE (old vibe) */
+        .marquee {
+            background: black;
+            color: lime;
+            padding: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
 </head>
 
 <body>
-<div id="loading-screen">
-  <div class="loading-box">
-    <div class="loading-title">Starting...</div>
-    <div class="loading-bar">
-      <div class="loading-fill"></div>
+    <div class="header">VAULT</div>
+    <div class="marquee">
+        <marquee>WELCOME TO THE VAULT :: PORTED GAMES :: DIGITAL ARCHIVE SYSTEM :: FILES VERIFIED :: BROWSER COMPATIBLE</marquee>
     </div>
-  </div>
-</div>
-
-<canvas id="matrix"></canvas>
-
-<div class="main-box">
-  <div class="sidebar">
-    <div class="nav-title">NAVIGATION</div>
-
-    <div class="section" onclick="show('games')">Games</div>
-    <div class="section" onclick="show('media')">Media</div>
-    <div class="section" onclick="show('tools')">Tools</div>
-
-    <!-- Retro GIF clutter -->
-<img src="https://dggamer007k7.neocities.org/gifs/men.gif" width="250">
-<img src="https://dggamer007k7.neocities.org/gifs/ie.gif" width="120">
-<img src="https://web.archive.org/web/20001011040215if_/http://www.geocities.com:80/Hollywood/Lot/6575/netscape.gif" width="120">
-<img src="https://web.archive.org/web/20091027012817if_/http://de.geocities.com/mandrakeppc/gifanim/pinguin_augenaufschlag.gif" width="120">
-  </div>
-
-  <div class="content" id="content">
-    <h2>Welcome</h2>
-    <p>Select something on the left.</p>
-
-<div class="viewer" id="viewer">
-  <div class="game-window">
-    <div class="controls">
-      <button onclick="closeViewer()">Close</button>
-      <button onclick="fullscreenGame()">Fullscreen</button>
-    </div>
-    <iframe id="frame"></iframe>
-  </div>
-</div>
-
-    <!-- Bottom chaos GIFs -->
-    <div class="bottom-gifs">
-<img src="https://web.archive.org/web/20091027122130im_/http://geocities.com/DeathSquadCP/imagesource/atomic.gif" width="50">
-<img src="https://dggamer007k7.neocities.org/gifs/gun.gif" width="50">
-<img src="https://dggamer007k7.neocities.org/gifs/bl.gif" width="50">
-    </div>
-
-
-<script>
-// MATRIX EFFECT
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
-
-let fontSize = 18;
-let charWidth;
-let rows;
-
-const rowData = [];
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  ctx.font = `${fontSize}px monospace`;
-  charWidth = ctx.measureText("0").width;
-
-  rows = Math.ceil(canvas.height / fontSize);
-
-  rowData.length = 0;
-
-  for (let y = 0; y < rows; y++) {
-    rowData.push({
-      offset: Math.random() * canvas.width,
-      speed: 60 + Math.random() * 40,
-      direction: y % 2 === 0 ? -1 : 1,
-text:
-  y % 2 === 0
-    ? "10".repeat(200)
-    : "01".repeat(200)
-    });
-  }
-}
-
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-let lastTime = 0;
-
-function draw(time) {
-  const delta = (time - lastTime) / 1000;
-  lastTime = time;
-
-  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.font = `${fontSize}px monospace`;
-
-  for (let y = 0; y < rows; y++) {
-    const row = rowData[y];
-
-    row.offset += row.speed * row.direction * delta;
-
-    if (row.direction === -1 && row.offset < -charWidth * 2) {
-      row.offset = 0;
-    }
-
-    if (row.direction === 1 && row.offset > charWidth * 2) {
-      row.offset = 0;
-    }
-
-    ctx.fillStyle = "rgba(0, 255, 0, 0.28)";
-
-    const repeatCount = Math.ceil(canvas.width / (row.text.length * charWidth)) + 3;
-
-    for (let i = -1; i < repeatCount; i++) {
-      ctx.fillText(
-        row.text,
-        i * row.text.length * charWidth + row.offset,
-        y * fontSize
-      );
-    }
-  }
-
-  requestAnimationFrame(draw);
-}
-
-requestAnimationFrame(draw);
-
-function show(type) {
-  const content = document.getElementById("content");
-
-  let html = "";
-
-  if (type === "games") {
-    html = `<h2>Games</h2>
-                <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/1/index.html')">1</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/2048/index.html')">2048</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-space-cadet-pinball/')">3D Space Cadet Pinball</div>
-
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/angrybirds.html')">Angry Birds</div>
-
+    <div class="gifbar"> <img src="https://dggamer007k7.neocities.org/gifs/men.gif"> <img src="https://dggamer007k7.neocities.org/gifs/ie.gif"> <img src="https://web.archive.org/web/20001011040215if_/http://www.geocities.com:80/Hollywood/Lot/6575/netscape.gif"> <img src="https://web.archive.org/web/20091027012817if_/http://de.geocities.com/mandrakeppc/gifanim/pinguin_augenaufschlag.gif"> <img src="https://dggamer007k7.neocities.org/gifs/cs.gif"> <img src="https://dggamer007k7.neocities.org/gifs/numb.gif"></div>
+    <div class="container"> <!-- GAMES -->
+        <div class="section">
+            <h2>Games</h2>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/1/index.html')">1</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/2048/index.html')">2048 [v1.0]</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-space-cadet-pinball/')">3D Space Cadet Pinball (c) Microsoft</div>
+            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/angrybirds.html')">Angry Birds [Classic Build]</div>
             <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/ragdollarcher.html')">ARC</div>
-            
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/arthur.html')">Arthurs Nightmare</div>
-            
             <div class="game" onclick="selectGame('https://ascii-patrol.com/area54/ascii-patrol-html5.html')">Ascii Patrol</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/balatro/index.html')">Balatro</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/balatro/index.html')">Balatro [v1.0]</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/467.html')">Baldis Basics Plus</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/bloodmoney/index.html')">Bloodmoney</div>
-
             <div class="game" onclick="selectGame('https://cojmar.github.io/bomberman/')">Bomberdude</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/723.html')">Brotato</div>
-
             <div class="game" onclick="selectGame('https://storage.googleapis.com/classroomx/bf.html')">Burgers And Frights</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/buckshot-roulette/index.html')">Buckshot Roulette</div>
-            
-            <div class="game" onclick="selectGame('https://windows93.net/c/programs/games/CatMario/index.html')">Cat Mario</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/buckshot-roulette/index.html')">Buckshot Roulette [v1.0]</div>
+            <div class="game" onclick="selectGame('https://windows93.net/c/programs/games/CatMario/index.html')">Cat Mario (Fan Port)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/716.html')">Clover Pit</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/cookie-clicker/index.html')">Cookie Clicker</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/nzp/index.html')">Cod Zombies</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/grassycrossyroad/index.html')">Crossy Road</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/cookie-clicker/index.html')">Cookie Clicker (c) Orteil</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/nzp/index.html')">Cod Zombies [Mod Build]</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/grassycrossyroad/index.html')">Crossy Road (c) Hipster Whale</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/cubefield/index.html')">Cubefield</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/kaimatten-delia-the-traveling-witch/web/index.html')">Delia The Traveling Witch</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html')">Deltatraveler</div>
-
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter1/index.html')">Deltarune ch1</div>
-            
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter2/index.html')">Deltarune ch2</div>
-            
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter3/index.html')">Deltarune ch3</div>
-            
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter4/index.html')">Deltarune ch4</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html')">Dino</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html')">Deltatraveler [v0.9]</div>
+            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter1/index.html')">Deltarune Ch1 (c) Toby Fox</div>
+            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter2/index.html')">Deltarune Ch2 (c) Toby Fox</div>
+            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter3/index.html')">Deltarune Ch3 (c) Toby Fox</div>
+            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter4/index.html')">Deltarune Ch4 (c) Toby Fox</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html')">Dino (Offline Game)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/511.html')">Doge Miner</div>
-
             <div class="game" onclick="selectGame('https://jesus.churchinhuntsville.org/resources/semag/elevatorhitch/index.html')">Elevator Hitch</div>
-
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/286.html')">Endoparasitic</div>
-
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/724.html')">Endoparasitic 2</div>
-            
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/585.html')">Fallout 1</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/games/fo2/index.html')">Fallout 2</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-fnaf/')">FNAF Collection</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html')">Flappy Bird</div>
-
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/557.html')">Getting Over It</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html')">Granny 1</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-2/index.html')">Granny 2</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/half-life/index.html')">Half Life</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/693.html')">Half Life: Opposing Force</div>
-
+            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/724.html')">Endoparasitic 2 [v1.1]</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/585.html')">Fallout 1 (c) Interplay</div>
+            <div class="game" onclick="selectGame('https://truffled.lol/games/fo2/index.html')">Fallout 2 (c) Interplay</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-fnaf/')">FNAF Collection (c) Scott Cawthon</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html')">Flappy Bird (c) .GEARS</div>
+            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/557.html')">Getting Over It (c) Bennett Foddy</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html')">Granny 1 [v1.0]</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-2/index.html')">Granny 2 [v1.0]</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/half-life/index.html')">Half Life (c) Valve</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/693.html')">Half Life: Opposing Force (c) Gearbox</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/hexgl/index.html')">HexGL</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/hollow-knight/index.html')">Hollow Knight</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/hollow-knight/index.html')">Hollow Knight (c) Team Cherry</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/idlebreakout/index.html')">Idle Breakout</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/779.html')">I Have No Mouth, And I Must Scream</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/667.html')">In stars and time</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-jazz2/')">Jazz Jackrabbit 2</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/667.html')">In Stars And Time</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-jazz2/')">Jazz Jackrabbit 2 (c) Epic</div>
             <div class="game" onclick="selectGame('https://noredink.com.de/zones/h/justoneboss/')">Just One Boss</div>
-
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/542-a.html')">Karlson</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/legostarwars.html')">Lego Star Wars</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false')">Lemmings</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=2&cheat=true')">Lemmings (with cheats)</div>
-
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/legostarwars.html')">Lego Star Wars (c) LEGO</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false')">Lemmings (Classic)</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=2&cheat=true')">Lemmings (Cheat Mode)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/649.html')">Look Outside</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/level-devil/index.html')">Level Devil</div>
-
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/599.html')">Metal Gear Solid</div>
-
+            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/599.html')">Metal Gear Solid (c) Konami</div>
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/658.html')">Midnight Shift</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html')">Minecraft 1.12</div>
-            
-            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html')">Minecraft 1.12.2</div>
-            
-            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html')">Minecraft 1.8</div>
-            
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html')">Minecraft [v1.12]</div>
+            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html')">Minecraft [v1.12.2]</div>
+            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html')">Minecraft [v1.8]</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglerexplore/index.html')">Minecraft Modpack: Explore</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglermagic/index.html')">Minecraft Modpack: Magic</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglertechycraft/index.html')">Minecraft Modpack: Tech</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Minesweeper Plus</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/180.html')">N-Gon</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/omori/index.html')">OMORI</div>
-
-            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/oneshotthing/')">Oneshot (LEGACY)</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/omori/index.html')">OMORI (c) OMOCAT</div>
+            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/oneshotthing/')">Oneshot (Legacy Build)</div>
             <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/operius.html')">OPERIUS</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/osu/index.html')">osu!</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/osu/index.html')">osu! (c)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/ovo/index.html')">OVO</div>
-
             <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/particle-clicker/')">Particle Clicker</div>
-
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/pizzatower.html')">Pizza Tower</div>
-            
+            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/pizzatower.html')">Pizza Tower (c) Tour De Pizza</div>
             <div class="game" onclick="selectGame('https://truffled.lol/games/raft/index.html')">Raft</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/bippinbits-ravenhaul/index.html')">Ravenhaul</div>
-            
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/Sandboxels.html')">Sandboxels</div>
-
             <div class="game" onclick="selectGame('https://kdata1.com/2022/12/santy-is-home1/')">Santy Is Home</div>
-
-            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/shogun.html/')">Showgun Showdown</div>
-
+            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/shogun.html/')">Shogun Showdown</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/318.html')">Side Effects</div>
-            
             <div class="game" onclick="selectGame('https://truffled.lol/games/slender/index.html')">Slender: The Eight Pages</div>
-
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/796.html')">Slendytubbies</div>
-
             <div class="game" onclick="selectGame('https://kdata1.com/2021/10/slide-in-the-woods/')">Slide In The Woods</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/591.html')">Slime Rancher</div>
-
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-spelunky-classic/')">Spelunky</div>
-
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-spelunky-classic/')">Spelunky (Classic)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/martintale-spirit-dungeons/index.html')">Spirit Dungeons</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/789.html')">Stardew Valley</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/games/nsmb/index.html')">Super Mario Bros</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/smgds.html')">Super Mario Galaxy</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tboiw.html')">The Binding of Isaac Wrath Of The Lamb: Eternal</div>
-            
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tloz.html')">The Legend Of Zelda: Ocarina Of Time</div>
-            
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/789.html')">Stardew Valley (c) ConcernedApe</div>
+            <div class="game" onclick="selectGame('https://truffled.lol/games/nsmb/index.html')">Super Mario Bros (c) Nintendo</div>
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/smgds.html')">Super Mario Galaxy (c) Nintendo</div>
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tboiw.html')">The Binding of Isaac: WotL</div>
+            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tloz.html')">The Legend of Zelda: Ocarina of Time (c) Nintendo</div>
             <div class="game" onclick="selectGame('https://truffled.lol/games/there-is-no-game/index.html')">There Is No Game</div>
-
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/620.html')">Three Goblets</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Undertale</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/718.html')">Untitled Goose Game</div>
-
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Undertale (c) Toby Fox</div>
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/718.html')">Untitled Goose Game (c)</div>
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/evandahm-usurper-ghoul/web/index.html')">USURPER GHOUL</div>
-
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/poncle-vampire-survivors/index.html')">Vampire Survivors</div>
-            
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/poncle-vampire-survivors/index.html')">Vampire Survivors (c)</div>
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/wbwwb.html')">We Become What We Behold</div>
-
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/554.html')">Yandere Simulator</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>
+        </div> <!-- MEDIA -->
+        <div class="section">
+            <h2>Media</h2>
+            <div class="game" onclick="selectGame('https://hianime.ms/')">Animes</div>
+            <div class="game" onclick="selectGame('https://movies2020.online/')">Movies 1</div>
+            <div class="game" onclick="selectGame('https://dulo.tv/')">Movies 2</div>
+        </div> <!-- TOOLS -->
+        <div class="section">
+            <h2>Tools</h2>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/')">8-bit palette color cycling</div>
+            <div class="game" onclick="selectGame('https://98.js.org/')">98.js [v2.x]</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-app-fluid-paint/')">Fluid Paint</div>
+            <div class="game" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>
+            <div class="game" onclick="selectGame('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html')">TTS Classic</div>
+            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-demo-voxel-space/')">Voxel Space</div>
+            <div class="game" onclick="selectGame('https://selenite.cc/resources/sppa/11/index.html')">Windows 11 (Blue Edge)</div>
+            <div class="game" onclick="selectGame('https://windows96.net/')">Windows 96 [Build 2.x]</div>
+            <div class="game" onclick="selectGame('https://windows-xp.on.websim.com/')">Windows XP (c) Microsoft</div>
+        </div>
+    </div><!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="controls"> <button class="btn" onclick="closeGame()">Close</button> <button class="btn" onclick="toggleFullscreen()">Fullscreen</button> </div> <iframe id="frame"></iframe>
+        </div>
+    </div>
+    <script>
+        let currentFrame = document.getElementById("frame");
+        let modal = document.getElementById("modal");
 
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
-  } else if (type === "media") {
-    html = `<h2>Media</h2>
-    <div class="item" onclick="selectGame('https://hianime.ms/')">Animes</div>
-    <div class="item" onclick="selectGame('https://movies2020.online/')">Movies</div>`;
-  } else if (type === "tools") {
-    html = `<h2>Tools</h2>
-    <div class="item" onclick="selectGame('https://98.js.org/')">98.js</div>
-    <div class="item" onclick="selectGame('https://emupedia.net/emupedia-app-fluid-paint/')">Fluid Paint</div>
-    <div class="item" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>
-    <div class="item" onclick="selectGame('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html')">TTS</div>
-    <div class="item" onclick="selectGame('https://windows96.net/')">Windows 96</div>
-    <div class="item" onclick="selectGame('https://windows-xp.on.websim.com/')">Windows XP</div>`;
-  }
+        function selectGame(url) {
+            currentFrame.src = url;
+            modal.style.display = "block";
+        }
 
-  html += document.getElementById("viewer").outerHTML;
-  content.innerHTML = html;
-}
+        function closeGame() {
+            currentFrame.src = "";
+            modal.style.display = "none";
+        }
 
-function selectGame(url) {
-  const viewer = document.getElementById("viewer");
-  const frame = document.getElementById("frame");
-
-  frame.src = url;
-  viewer.style.display = "flex";
-}
-
-function closeViewer() {
-  const viewer = document.getElementById("viewer");
-  const frame = document.getElementById("frame");
-
-  frame.src = "";
-  viewer.style.display = "none";
-}
-
-function fullscreenGame() {
-  const frame = document.getElementById("frame");
-  if (frame.requestFullscreen) frame.requestFullscreen();
-}
-
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    const loader = document.getElementById("loading-screen");
-    loader.style.display = "none";
-  }, 2000);
-});
-</script>
+        function toggleFullscreen() {
+            let elem = document.querySelector(".modal-content");
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
 </body>
+
 </html>
