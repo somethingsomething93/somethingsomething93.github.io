@@ -40,7 +40,7 @@ canvas {
   font-weight: bold;
   margin-bottom: 10px;
 }
-.sidebar .section {
+.section {
   margin: 8px 0;
   cursor: pointer;
   text-decoration: underline;
@@ -80,7 +80,7 @@ canvas {
   padding: 5px;
   border-bottom: 2px solid #00ff00;
 }
-button {
+.button {
   background: black;
   color: #00ff00;
   border: 1px solid #00ff00;
@@ -133,14 +133,14 @@ button {
     <div class="nav-title">NAVIGATION</div>
 
     <div class="section" onclick="show('games')">Games</div>
-    <div class="section" onclick="show('anime')">Anime</div>
+    <div class="section" onclick="show('media')">Media</div>
     <div class="section" onclick="show('tools')">Tools</div>
 
     <!-- Retro GIF clutter -->
-<img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTk0bXo3cjg4anpsYnE2bXJheXNzMTd3a3p3ZDYzcmp5ZHZnMDZteiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EdBq6OQN7JUly/giphy.gif" width="120">
-<img src="https://web.archive.org/web/20091027021537if_/http://www.geocities.com/batahola_mx/imagenes/windows.gif" width="120">
-<img src="https://web.archive.org/web/20091027122130im_/http://geocities.com/DeathSquadCP/imagesource/atomic.gif" width="120">
-<img src="https://web.archive.org/web/20091027104647im_/http://geocities.com/PicketFence/1350/anisaucer.gif" width="120">
+<img src="https://dggamer007k7.neocities.org/gifs/men.gif" width="250">
+<img src="https://dggamer007k7.neocities.org/gifs/ie.gif" width="120">
+<img src="https://web.archive.org/web/20001011040215if_/http://www.geocities.com:80/Hollywood/Lot/6575/netscape.gif" width="120">
+<img src="https://web.archive.org/web/20091027012817if_/http://de.geocities.com/mandrakeppc/gifanim/pinguin_augenaufschlag.gif" width="120">
   </div>
 
   <div class="content" id="content">
@@ -159,9 +159,9 @@ button {
 
     <!-- Bottom chaos GIFs -->
     <div class="bottom-gifs">
-<img src="https://web.archive.org/web/20091027092455im_/http://www.geocities.com/ghostbuster892002/Megatron_20Icon.gif" width="50">
-<img src="https://web.archive.org/web/20091027172221im_/http://geocities.com/Area51/Hollow/3594/starlogo.gif" width="50">
-<img src="https://web.archive.org/web/20091027075209im_/http://geocities.com/richard_sakol/advertise.gif" width="50">
+<img src="https://web.archive.org/web/20091027122130im_/http://geocities.com/DeathSquadCP/imagesource/atomic.gif" width="50">
+<img src="https://dggamer007k7.neocities.org/gifs/gun.gif" width="50">
+<img src="https://dggamer007k7.neocities.org/gifs/bl.gif" width="50">
     </div>
 
 
@@ -437,16 +437,15 @@ function show(type) {
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/554.html')">Yandere Simulator</div>
 
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
-  } else if (type === "anime") {
-    html = `<h2>Anime</h2>
-    <div class="item" onclick="selectGame('https://hianime.ms')">Animes</div>`;
+  } else if (type === "media") {
+    html = `<h2>Media</h2>
+    <div class="item" onclick="selectGame('https://movies2020.online/')">Movies</div>`;
   } else if (type === "tools") {
     html = `<h2>Tools</h2>
     <div class="item" onclick="selectGame('https://98.js.org/')">98.js</div>
     <div class="item" onclick="selectGame('https://emupedia.net/emupedia-app-fluid-paint/')">Fluid Paint</div>
     <div class="item" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>
     <div class="item" onclick="selectGame('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html')">TTS</div>
-    <div class="item" onclick="selectGame('https://windows93.net/')">Windows 93</div>
     <div class="item" onclick="selectGame('https://windows96.net/')">Windows 96</div>
     <div class="item" onclick="selectGame('https://windows-xp.on.websim.com/')">Windows XP</div>`;
   }
