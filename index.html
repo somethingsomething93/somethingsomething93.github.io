@@ -122,10 +122,60 @@ canvas {
   border-bottom: 2px solid #00ff00;
   padding: 5px;
 }
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  font-family: "Courier New", monospace;
+  color: #00ff00;
+}
+.loading-box {
+  width: 300px;
+  border: 2px solid #00ff00;
+  padding: 15px;
+  text-align: center;
+}
+
+.loading-title {
+  margin-bottom: 10px;
+}
+.loading-bar {
+  width: 100%;
+  height: 20px;
+  border: 2px solid #00ff00;
+  background: black;
+  overflow: hidden;
+}
+.loading-fill {
+  height: 100%;
+  width: 0%;
+  background: #00ff00;
+  animation: loadAnim 1.5s linear forwards;
+}
+@keyframes loadAnim {
+  from { width: 0%; }
+  to { width: 100%; }
+}
 </style>
 </head>
 
 <body>
+<div id="loading-screen">
+  <div class="loading-box">
+    <div class="loading-title">Starting...</div>
+    <div class="loading-bar">
+      <div class="loading-fill"></div>
+    </div>
+  </div>
+</div>
+
 <canvas id="matrix"></canvas>
 
 <div class="main-box">
@@ -361,10 +411,18 @@ function show(type) {
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/599.html')">Metal Gear Solid</div>
 
             <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/658.html')">Midnight Shift</div>
+
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html')">Minecraft 1.12</div>
             
             <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html')">Minecraft 1.12.2</div>
             
             <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html')">Minecraft 1.8</div>
+            
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglerexplore/index.html')">Minecraft Modpack: Explore</div>
+
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglermagic/index.html')">Minecraft Modpack: Magic</div>
+
+            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglertechycraft/index.html')">Minecraft Modpack: Tech</div>
 
             <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Minesweeper Plus</div>
 
@@ -414,8 +472,6 @@ function show(type) {
             
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/smgds.html')">Super Mario Galaxy</div>
             
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-binding-of-isaac/')">The Binding of Isaac</div>
-            
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tboiw.html')">The Binding of Isaac Wrath Of The Lamb: Eternal</div>
             
             <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tloz.html')">The Legend Of Zelda: Ocarina Of Time</div>
@@ -439,8 +495,8 @@ function show(type) {
             <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>`;
   } else if (type === "media") {
     html = `<h2>Media</h2>
-    <div class="item" onclick="selectGame('https://movies2020.online/')">Movies</div>
-    <div class="item" onclick="selectGame('https://hianime.ms/')">Animes</div>`;
+    <div class="item" onclick="selectGame('https://hianime.ms/')">Animes</div>
+    <div class="item" onclick="selectGame('https://movies2020.online/')">Movies</div>`;
   } else if (type === "tools") {
     html = `<h2>Tools</h2>
     <div class="item" onclick="selectGame('https://98.js.org/')">98.js</div>
@@ -475,6 +531,13 @@ function fullscreenGame() {
   const frame = document.getElementById("frame");
   if (frame.requestFullscreen) frame.requestFullscreen();
 }
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const loader = document.getElementById("loading-screen");
+    loader.style.display = "none";
+  }, 2000);
+});
 </script>
 </body>
 </html>
