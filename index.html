@@ -1,295 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Vault</title>
-    <style>
-        body {
-            margin: 0;
-            background: #c0c0c0;
-            font-family: "Times New Roman", serif;
-            color: black;
-        }
-
-        /* HEADER */
-        .header {
-            background: #000080;
-            color: white;
-            padding: 10px;
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            border-bottom: 3px solid black;
-        }
-
-        .subheader {
-            font-size: 12px;
-            padding: 5px 10px;
-            background: #e0e0e0;
-            border-bottom: 2px solid #999;
-        }
-
-        /* LAYOUT */
-        .container {
-            display: flex;
-            padding: 10px;
-        }
-
-        .section {
-            flex: 1;
-            margin: 5px;
-            background: #f2f2f2;
-            border: 2px solid #666;
-            padding: 10px;
-            min-height: 400px;
-        }
-
-        .section h2 {
-            font-size: 16px;
-            border-bottom: 1px solid #999;
-            padding-bottom: 5px;
-        }
-
-        /* BUTTONS */
-        .game {
-            background: #d9d9d9;
-            border: 1px solid #444;
-            padding: 5px;
-            margin: 5px 0;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .game:hover {
-            background: #ffffff;
-        }
-
-        /* GIF DECOR */
-        .gifbar {
-            padding: 5px;
-            text-align: center;
-            background: #ddd;
-            border-bottom: 2px solid #999;
-        }
-
-        .gifbar img {
-            height: 40px;
-            margin: 0 5px;
-            image-rendering: pixelated;
-        }
-
-        /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 5%;
-            left: 5%;
-            width: 90%;
-            height: 90%;
-            background: #fff;
-            border: 3px solid black;
-        }
-
-        iframe {
-            width: 100%;
-            height: 90%;
-            border: none;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px;
-            background: #ccc;
-            border-bottom: 2px solid #666;
-        }
-
-        .btn {
-            padding: 3px 8px;
-            border: 1px solid #333;
-            background: #eee;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn:hover {
-            background: #fff;
-        }
-
-        /* MARQUEE STYLE (old vibe) */
-        .marquee {
-            background: black;
-            color: lime;
-            padding: 4px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: #0a0a0a;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  #loader {
+    position: fixed; inset: 0; background: #000; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loader.fade-out { opacity: 0; visibility: hidden; }
+  #matrix-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .loader-content { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .loader-logo { font-size: 64px; font-weight: 900; letter-spacing: 0.2em; color: #c81e1e; text-shadow: 0 0 40px #c81e1e88; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{text-shadow:0 0 20px #c81e1e88}50%{text-shadow:0 0 60px #ff4444cc,0 0 100px #c81e1e44} }
+  .loader-bar-wrap { width: 220px; height: 2px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
+  .loader-bar { height: 100%; width: 0%; background: #c81e1e; border-radius: 2px; transition: width 0.1s linear; box-shadow: 0 0 8px #c81e1e; }
+  .loader-status { font-size: 11px; letter-spacing: 0.25em; color: #c81e1e99; text-transform: uppercase; }
+  #grid-bg { position: fixed; top:0;left:0;width:100%;height:100%; display: grid; grid-template-columns: repeat(var(--cols),1fr); grid-template-rows: repeat(var(--rows),1fr); z-index: 0; pointer-events: none; }
+  .grid-cell { border: 1px solid #1a1a1a; transition: background-color 0.15s ease, transform 0.15s ease; pointer-events: all; cursor: default; }
+  .grid-cell:hover { background-color: rgba(200,30,30,0.18); transform: scale(1.3); z-index: 1; border-color: #c81e1e44; }
+  #content { position: relative; z-index: 10; pointer-events: none; }
+  #content * { pointer-events: auto; }
+  header { text-align: center; padding: 48px 24px 24px; border-bottom: 1px solid #c81e1e44; background: linear-gradient(180deg,rgba(10,10,10,0.95) 0%,rgba(10,10,10,0.7) 100%); }
+  .logo { font-size: 52px; font-weight: 900; letter-spacing: 0.18em; color: #c81e1e; text-shadow: 0 0 30px #c81e1e55; font-family: 'Courier New', monospace; }
+  .logo span { color: #ff4444; }
+  .tagline { color: #666; font-size: 12px; letter-spacing: 0.3em; margin-top: 6px; text-transform: uppercase; }
+  nav { display: flex; justify-content: center; gap: 32px; padding: 0 24px; background: rgba(10,10,10,0.88); border-bottom: 1px solid #1e1e1e; }
+  nav a {
+    color: #888; text-decoration: none; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: color 0.2s, border-color 0.2s; padding: 14px 0;
+    border-bottom: 2px solid transparent; cursor: pointer;
+  }
+  nav a:hover { color: #c81e1e; }
+  nav a.active { color: #c81e1e; border-bottom: 2px solid #c81e1e; }
+  .main { max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+  .section { display: none; margin-bottom: 60px; animation: fadeIn 0.25s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #c81e1e33; }
+  .section-icon { width: 32px; height: 32px; background: #c81e1e22; border: 1px solid #c81e1e55; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .section-title { font-size: 18px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #c81e1e; }
+  .section-count { font-size: 11px; color: #444; margin-left: auto; letter-spacing: 0.1em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .game { background: #111; border: 1px solid #222; padding: 14px 16px; font-size: 13px; color: #ccc; cursor: pointer; border-radius: 4px; transition: all 0.15s ease; letter-spacing: 0.04em; position: relative; overflow: hidden; }
+  .game::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:#c81e1e; opacity:0; transition:opacity 0.15s; }
+  .game:hover { background:#1a1a1a; border-color:#c81e1e55; color:#fff; transform:translateY(-1px); }
+  .game:hover::before { opacity:1; }
+  .game:active { transform:translateY(0); }
+  .overlay { position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999999;flex-direction:column;display:none;opacity:0;transform:scale(0.96) translateY(12px);transition:opacity 0.25s ease,transform 0.25s ease; }
+  .overlay.opening { display:flex; }
+  .overlay.open { display:flex;opacity:1;transform:scale(1) translateY(0);animation:flashIn 0.5s ease forwards; }
+  .overlay.closing { display:flex;opacity:0;transform:scale(0.96) translateY(12px); }
+  @keyframes flashIn { 0%{box-shadow:inset 0 0 0px #c81e1e00}30%{box-shadow:inset 0 0 60px #c81e1e33}100%{box-shadow:inset 0 0 0px #c81e1e00} }
+  .embed-bar { display:flex;align-items:center;gap:10px;padding:10px 16px;background:#111;border-bottom:1px solid #c81e1e44;flex-shrink:0; }
+  .embed-title { flex:1;font-size:12px;color:#888;letter-spacing:0.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .embed-btn { background:#1a1a1a;border:1px solid #333;color:#aaa;padding:6px 14px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:3px;font-family:'Courier New',monospace;transition:all 0.15s; }
+  .embed-btn:hover { background:#c81e1e;border-color:#c81e1e;color:#fff; }
+  .embed-btn.close-btn:hover { background:#333;border-color:#555;color:#fff; }
+  .iframe-wrap { flex:1;position:relative;overflow:hidden; }
+  iframe { flex:1;width:100%;height:100%;border:none;background:#000; }
+  .notice { text-align:center;padding:10px 20px;background:rgba(200,30,30,0.07);border:1px solid #c81e1e22;border-radius:4px;color:#555;font-size:11px;letter-spacing:0.12em;margin-bottom:40px; }
+  footer { text-align:center;padding:24px;border-top:1px solid #1a1a1a;color:#333;font-size:11px;letter-spacing:0.15em;background:rgba(10,10,10,0.9); }
+</style>
 </head>
-
 <body>
-    <div class="header">VAULT</div>
-    <div class="marquee">
-        <marquee>WELCOME TO THE VAULT :: PORTED GAMES :: DIGITAL ARCHIVE SYSTEM :: FILES VERIFIED :: BROWSER COMPATIBLE</marquee>
+
+<div id="loader">
+  <canvas id="matrix-canvas"></canvas>
+  <div class="loader-content">
+    <div class="loader-logo">VAULT</div>
+    <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+    <div class="loader-status" id="loader-status">Initializing...</div>
+  </div>
+</div>
+
+<div id="grid-bg"></div>
+
+<div id="content">
+  <header>
+    <div class="logo">V<span>AULT</span></div>
+    <div class="tagline">☠</div>
+  </header>
+
+  <nav>
+    <a class="active" onclick="showSection('games', this)">Games</a>
+    <a onclick="showSection('media', this)">Media</a>
+    <a onclick="showSection('tools', this)">Tools</a>
+  </nav>
+
+  <div class="main">
+    <div class="notice">dont get caught by your teacher</div>
+
+    <div class="section active" id="games">
+      <div class="section-header">
+        <div class="section-icon">&#9632;</div>
+        <div class="section-title">Games</div>
+        <div class="section-count">4 ENTRIES</div>
+      </div>
+      <div class="grid">
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/1/index.html', this)">1</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/2048/index.html', this)">2048 [v1.0]</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-space-cadet-pinball/', this)">3D Space Cadet Pinball (c) Microsoft</div>
+            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/angrybirds.html', this)">Angry Birds [Classic Build]</div>
+            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/ragdollarcher.html', this)">ARC</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/arthur.html', this)">Arthurs Nightmare</div>
+            <div class="game" onclick="openEmbed('https://ascii-patrol.com/area54/ascii-patrol-html5.html', this)">Ascii Patrol</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/balatro/index.html', this)">Balatro [v1.0]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/467.html')">Baldis Basics Plus</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/bloodmoney/index.html', this)">Bloodmoney</div>
+            <div class="game" onclick="openEmbed('https://cojmar.github.io/bomberman/', this)">Bomberdude</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/723.html', this)">Brotato</div>
+            <div class="game" onclick="openEmbed('https://storage.googleapis.com/classroomx/bf.html', this)">Burgers And Frights</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/buckshot-roulette/index.html', this)">Buckshot Roulette [v1.0]</div>
+            <div class="game" onclick="openEmbed('https://windows93.net/c/programs/games/CatMario/index.html', this)">Cat Mario (Fan Port)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/716.html', this)">Clover Pit</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/cookie-clicker/index.html', this)">Cookie Clicker (c) Orteil</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/nzp/index.html', this)">Cod Zombies [Mod Build]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/grassycrossyroad/index.html', this)">Crossy Road (c) Hipster Whale</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/cubefield/index.html', this)">Cubefield</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/kaimatten-delia-the-traveling-witch/web/index.html', this)">Delia The Traveling Witch</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html', this)">Deltatraveler [v0.9]</div>
+            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter1/index.html', this)">Deltarune Ch1 (c) Toby Fox</div>
+            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter2/index.html', this)">Deltarune Ch2 (c) Toby Fox</div>
+            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter3/index.html', this)">Deltarune Ch3 (c) Toby Fox</div>
+            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter4/index.html', this)">Deltarune Ch4 (c) Toby Fox</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html', this)">Dino (Offline Game)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/511.html', this)">Doge Miner</div>
+            <div class="game" onclick="openEmbed('https://jesus.churchinhuntsville.org/resources/semag/elevatorhitch/index.html', this)">Elevator Hitch</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/286.html', this)">Endoparasitic 1</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/724.html', this)">Endoparasitic 2 [v1.1]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/585.html', this)">Fallout 1 (c) Interplay</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/games/fo2/index.html', this)">Fallout 2 (c) Interplay</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-fnaf/', this)">FNAF Collection (c) Scott Cawthon</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html', this)">Flappy Bird (c) .GEARS</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/557.html', this)">Getting Over It (c) Bennett Foddy</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html', this)">Granny 1 [v1.0]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/granny-2/index.html', this)">Granny 2 [v1.0]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/half-life/index.html', this)">Half Life (c) Valve</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/693.html', this)">Half Life: Opposing Force (c) Gearbox</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/hexgl/index.html', this)">HexGL</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/hollow-knight/index.html', this)">Hollow Knight (c) Team Cherry</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/idlebreakout/index.html', this)">Idle Breakout</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/779.html', this)">I Have No Mouth, And I Must Scream</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/667.html', this)">In Stars And Time</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-jazz2/', this)">Jazz Jackrabbit 2 (c) Epic</div>
+            <div class="game" onclick="openEmbed('https://noredink.com.de/zones/h/justoneboss/', this)">Just One Boss</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/542-a.html', this)">Karlson</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/legostarwars.html', this)">Lego Star Wars (c) LEGO</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false', this)">Lemmings (Classic)</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=2&cheat=true', this)">Lemmings (Cheat Mode)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/649.html', this)">Look Outside</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/level-devil/index.html', this)">Level Devil</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/599.html', this)">Metal Gear Solid (c) Konami</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/658.html', this)">Midnight Shift</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html', this)">Minecraft [v1.12]</div>
+            <div class="game" onclick="openEmbed('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html', this)">Minecraft [v1.12.2]</div>
+            <div class="game" onclick="openEmbed('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html', this)">Minecraft [v1.8]</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglerexplore/index.html', this)">Minecraft Modpack: Explore</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglermagic/index.html', this)">Minecraft Modpack: Magic</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglertechycraft/index.html', this)">Minecraft Modpack: Tech</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/undertale/index.html', this)">Minesweeper Plus</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/180.html', this)">N-Gon</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/omori/index.html', this)">OMORI (c) OMOCAT</div>
+            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/oneshotthing/', this)">Oneshot (Legacy Build)</div>
+            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/operius.html', this)">OPERIUS</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/osu/index.html', this)">osu! (c)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/ovo/index.html', this)">OVO</div>
+            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/particle-clicker/', this)">Particle Clicker</div>
+            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/pizzatower.html', this)">Pizza Tower (c) Tour De Pizza</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/games/raft/index.html', this)">Raft</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/bippinbits-ravenhaul/index.html', this)">Ravenhaul</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/Sandboxels.html', this)">Sandboxels</div>
+            <div class="game" onclick="openEmbed('https://kdata1.com/2022/12/santy-is-home1/', this)">Santy Is Home</div>
+            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/shogun.html/', this)">Shogun Showdown</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/318.html', this)">Side Effects</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/games/slender/index.html', this)">Slender: The Eight Pages</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/796.html', this)">Slendytubbies</div>
+            <div class="game" onclick="openEmbed('https://kdata1.com/2021/10/slide-in-the-woods/', this)">Slide In The Woods</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/591.html', this)">Slime Rancher</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-spelunky-classic/', this)">Spelunky (Classic)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/martintale-spirit-dungeons/index.html', this)">Spirit Dungeons</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/789.html', this)">Stardew Valley (c) ConcernedApe</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/games/nsmb/index.html', this)">New Super Mario Bros (c) Nintendo</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/smgds.html', this)">Super Mario Galaxy (c) Nintendo</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/tboiw.html', this)">The Binding of Isaac: WotL</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/tloz.html', this)">The Legend of Zelda: Ocarina of Time (c) Nintendo</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/games/there-is-no-game/index.html', this)">There Is No Game</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/620.html', this)">Three Goblets</div>
+            <div class="game" onclick="openEmbed('https://f.gamepofi.com/lr/undertale/', this)">Underfell</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/undertale/index.html', this)">Undertale (c) Toby Fox</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/718.html', this)">Untitled Goose Game (c)</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/evandahm-usurper-ghoul/web/index.html', this)">USURPER GHOUL</div>
+            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/poncle-vampire-survivors/index.html', this)">Vampire Survivors (c)</div>
+            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/wbwwb.html', this)">We Become What We Behold</div>
+            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/554.html', this)">Yandere Simulator</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-yume-nikki/', this)">Yume Nikki</div>
+      </div>
     </div>
-    <div class="gifbar"> <img src="https://dggamer007k7.neocities.org/gifs/men.gif"> <img src="https://dggamer007k7.neocities.org/gifs/ie.gif"> <img src="https://web.archive.org/web/20001011040215if_/http://www.geocities.com:80/Hollywood/Lot/6575/netscape.gif"> <img src="https://web.archive.org/web/20091027012817if_/http://de.geocities.com/mandrakeppc/gifanim/pinguin_augenaufschlag.gif"> <img src="https://dggamer007k7.neocities.org/gifs/cs.gif"> <img src="https://dggamer007k7.neocities.org/gifs/numb.gif"></div>
-    <div class="container"> <!-- GAMES -->
-        <div class="section">
-            <h2>Games</h2>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/1/index.html')">1</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/2048/index.html')">2048 [v1.0]</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-space-cadet-pinball/')">3D Space Cadet Pinball (c) Microsoft</div>
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/angrybirds.html')">Angry Birds [Classic Build]</div>
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/ragdollarcher.html')">ARC</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/arthur.html')">Arthurs Nightmare</div>
-            <div class="game" onclick="selectGame('https://ascii-patrol.com/area54/ascii-patrol-html5.html')">Ascii Patrol</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/balatro/index.html')">Balatro [v1.0]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/467.html')">Baldis Basics Plus</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/bloodmoney/index.html')">Bloodmoney</div>
-            <div class="game" onclick="selectGame('https://cojmar.github.io/bomberman/')">Bomberdude</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/723.html')">Brotato</div>
-            <div class="game" onclick="selectGame('https://storage.googleapis.com/classroomx/bf.html')">Burgers And Frights</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/buckshot-roulette/index.html')">Buckshot Roulette [v1.0]</div>
-            <div class="game" onclick="selectGame('https://windows93.net/c/programs/games/CatMario/index.html')">Cat Mario (Fan Port)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/716.html')">Clover Pit</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/cookie-clicker/index.html')">Cookie Clicker (c) Orteil</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/nzp/index.html')">Cod Zombies [Mod Build]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/grassycrossyroad/index.html')">Crossy Road (c) Hipster Whale</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/cubefield/index.html')">Cubefield</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/kaimatten-delia-the-traveling-witch/web/index.html')">Delia The Traveling Witch</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html')">Deltatraveler [v0.9]</div>
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter1/index.html')">Deltarune Ch1 (c) Toby Fox</div>
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter2/index.html')">Deltarune Ch2 (c) Toby Fox</div>
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter3/index.html')">Deltarune Ch3 (c) Toby Fox</div>
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/semag/deltarune/chapter4/index.html')">Deltarune Ch4 (c) Toby Fox</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html')">Dino (Offline Game)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/511.html')">Doge Miner</div>
-            <div class="game" onclick="selectGame('https://jesus.churchinhuntsville.org/resources/semag/elevatorhitch/index.html')">Elevator Hitch</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/286.html')">Endoparasitic</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/724.html')">Endoparasitic 2 [v1.1]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/585.html')">Fallout 1 (c) Interplay</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/games/fo2/index.html')">Fallout 2 (c) Interplay</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-fnaf/')">FNAF Collection (c) Scott Cawthon</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html')">Flappy Bird (c) .GEARS</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/557.html')">Getting Over It (c) Bennett Foddy</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html')">Granny 1 [v1.0]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/granny-2/index.html')">Granny 2 [v1.0]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/half-life/index.html')">Half Life (c) Valve</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/693.html')">Half Life: Opposing Force (c) Gearbox</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/hexgl/index.html')">HexGL</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/hollow-knight/index.html')">Hollow Knight (c) Team Cherry</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/idlebreakout/index.html')">Idle Breakout</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/779.html')">I Have No Mouth, And I Must Scream</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/667.html')">In Stars And Time</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-jazz2/')">Jazz Jackrabbit 2 (c) Epic</div>
-            <div class="game" onclick="selectGame('https://noredink.com.de/zones/h/justoneboss/')">Just One Boss</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/542-a.html')">Karlson</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/legostarwars.html')">Lego Star Wars (c) LEGO</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false')">Lemmings (Classic)</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=2&cheat=true')">Lemmings (Cheat Mode)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/649.html')">Look Outside</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/level-devil/index.html')">Level Devil</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/599.html')">Metal Gear Solid (c) Konami</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/658.html')">Midnight Shift</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html')">Minecraft [v1.12]</div>
-            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html')">Minecraft [v1.12.2]</div>
-            <div class="game" onclick="selectGame('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html')">Minecraft [v1.8]</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglerexplore/index.html')">Minecraft Modpack: Explore</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglermagic/index.html')">Minecraft Modpack: Magic</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/eaglertechycraft/index.html')">Minecraft Modpack: Tech</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Minesweeper Plus</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/180.html')">N-Gon</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/omori/index.html')">OMORI (c) OMOCAT</div>
-            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/oneshotthing/')">Oneshot (Legacy Build)</div>
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/operius.html')">OPERIUS</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/osu/index.html')">osu! (c)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/ovo/index.html')">OVO</div>
-            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/particle-clicker/')">Particle Clicker</div>
-            <div class="game" onclick="selectGame('https://harshulmoon.github.io/iframes/pizzatower.html')">Pizza Tower (c) Tour De Pizza</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/games/raft/index.html')">Raft</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/bippinbits-ravenhaul/index.html')">Ravenhaul</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/Sandboxels.html')">Sandboxels</div>
-            <div class="game" onclick="selectGame('https://kdata1.com/2022/12/santy-is-home1/')">Santy Is Home</div>
-            <div class="game" onclick="selectGame('https://harshulsilverspoon.github.io/shogun.html/')">Shogun Showdown</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/318.html')">Side Effects</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/games/slender/index.html')">Slender: The Eight Pages</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/796.html')">Slendytubbies</div>
-            <div class="game" onclick="selectGame('https://kdata1.com/2021/10/slide-in-the-woods/')">Slide In The Woods</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/591.html')">Slime Rancher</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-spelunky-classic/')">Spelunky (Classic)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/martintale-spirit-dungeons/index.html')">Spirit Dungeons</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/789.html')">Stardew Valley (c) ConcernedApe</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/games/nsmb/index.html')">New Super Mario Bros (c) Nintendo</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/smgds.html')">Super Mario Galaxy (c) Nintendo</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tboiw.html')">The Binding of Isaac: WotL</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/tloz.html')">The Legend of Zelda: Ocarina of Time (c) Nintendo</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/games/there-is-no-game/index.html')">There Is No Game</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/620.html')">Three Goblets</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/undertale/index.html')">Undertale (c) Toby Fox</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gn/718.html')">Untitled Goose Game (c)</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/evandahm-usurper-ghoul/web/index.html')">USURPER GHOUL</div>
-            <div class="game" onclick="selectGame('https://www.eduwing.it.com/filestorage/gd/poncle-vampire-survivors/index.html')">Vampire Survivors (c)</div>
-            <div class="game" onclick="selectGame('https://truffled.lol/gamefile/wbwwb.html')">We Become What We Behold</div>
-            <div class="game" onclick="selectGame('https://genizymath.github.io/iframe/554.html')">Yandere Simulator</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-game-yume-nikki/')">Yume Nikki</div>
-        </div> <!-- MEDIA -->
-        <div class="section">
-            <h2>Media</h2>
-            <div class="game" onclick="selectGame('https://hianime.ms/')">Animes</div>
-            <div class="game" onclick="selectGame('https://movies2020.online/')">Movies 1</div>
-            <div class="game" onclick="selectGame('https://dulo.tv/')">Movies 2</div>
-        </div> <!-- TOOLS -->
-        <div class="section">
-            <h2>Tools</h2>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/')">8-bit palette color cycling</div>
-            <div class="game" onclick="selectGame('https://98.js.org/')">98.js [v2.x]</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-app-fluid-paint/')">Fluid Paint</div>
-            <div class="game" onclick="selectGame('https://cojmar.github.io/nsvg/')">NSVG</div>
-            <div class="game" onclick="selectGame('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html')">TTS Classic</div>
-            <div class="game" onclick="selectGame('https://emupedia.net/emupedia-demo-voxel-space/')">Voxel Space</div>
-            <div class="game" onclick="selectGame('https://selenite.cc/resources/sppa/11/index.html')">Windows 11 (Blue Edge)</div>
-            <div class="game" onclick="selectGame('https://windows96.net/')">Windows 96 [Build 2.x]</div>
-            <div class="game" onclick="selectGame('https://windows-xp.on.websim.com/')">Windows XP (c) Microsoft</div>
-        </div>
-    </div><!-- MODAL -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="controls"> <button class="btn" onclick="closeGame()">Close</button> <button class="btn" onclick="toggleFullscreen()">Fullscreen</button> </div> <iframe id="frame"></iframe>
-        </div>
+
+    <div class="section" id="media">
+      <div class="section-header">
+        <div class="section-icon">&#9632;</div>
+        <div class="section-title">Media</div>
+        <div class="section-count">4 ENTRIES</div>
+      </div>
+      <div class="grid">
+            <div class="game" onclick="openEmbed('https://hianime.ms/', this)">Animes 1</div>
+            <div class="game" onclick="openEmbed('https://40s-animeigen.com', this)">Animes 2</div>
+            <div class="game" onclick="openEmbed('https://tv.emupedia.net', this)">Cartoons</div>
+            <div class="game" onclick="openEmbed('https://movies2020.online/', this)">Movies 1</div>
+            <div class="game" onclick="openEmbed('https://dulo.tv/', this)">Movies 2</div>
+      </div>
     </div>
-    <script>
-        let currentFrame = document.getElementById("frame");
-        let modal = document.getElementById("modal");
 
-        function selectGame(url) {
-            currentFrame.src = url;
-            modal.style.display = "block";
-        }
+    <div class="section" id="tools">
+      <div class="section-header">
+        <div class="section-icon">&#9632;</div>
+        <div class="section-title">Tools</div>
+        <div class="section-count">4 ENTRIES</div>
+      </div>
+      <div class="grid">
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/', this)">8-bit palette color cycling</div>
+            <div class="game" onclick="openEmbed('https://98.js.org/', this)">98.js [v2.x]</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-fluid-paint/', this)">Fluid Paint</div>
+            <div class="game" onclick="openEmbed('https://cojmar.github.io/nsvg/', this)">NSVG</div>
+            <div class="game" onclick="openEmbed('https://copy.sh/v86/?profile=serenity', this)">SerenityOS</div>
+            <div class="game" onclick="openEmbed('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html', this)">TTS Classic</div>
+            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-demo-voxel-space/', this)">Voxel Space</div>
+            <div class="game" onclick="openEmbed('https://win11.blueedge.me', this)">Windows 11 (Blue Edge)</div>
+            <div class="game" onclick="openEmbed('https://windows96.net/', this)">Windows 96 [Build 2.x]</div>
+            <div class="game" onclick="openEmbed('https://windows-xp.on.websim.com/', this)">Windows XP (c) Microsoft</div>
+      </div>
+    </div>
+  </div>
 
-        function closeGame() {
-            currentFrame.src = "";
-            modal.style.display = "none";
-        }
+  <footer>░V░ ░A░ ░U░ ░L░ ░T░</footer>
+</div>
 
-        function toggleFullscreen() {
-            let elem = document.querySelector(".modal-content");
-            if (!document.fullscreenElement) {
-                elem.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        }
-    </script>
+<div class="overlay" id="overlay">
+  <div class="embed-bar">
+    <div class="embed-title" id="embed-title">Loading...</div>
+    <button class="embed-btn" onclick="toggleFullscreen()">Fullscreen</button>
+    <button class="embed-btn close-btn" onclick="closeEmbed()">&#x2715; Close</button>
+  </div>
+  <div class="iframe-wrap">
+    <iframe id="embed-frame" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+let drops;
+
+function initMatrix() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cols = Math.floor(canvas.width / 14);
+  drops = Array(cols).fill(1);
+}
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = '14px Courier New';
+  for (let i = 0; i < drops.length; i++) {
+    const intensity = Math.random();
+    ctx.fillStyle = intensity > 0.7 ? '#ff4444' : intensity > 0.3 ? '#c81e1e' : '#7a0f0f';
+    ctx.fillText(String.fromCharCode(0x30A0 + Math.random() * 96), i * 14, drops[i] * 14);
+    if (drops[i] * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+
+initMatrix();
+const matrixInterval = setInterval(drawMatrix, 40);
+
+const statuses = ['Initializing...', 'Bypassing firewall...', 'Decrypting archives...', 'Loading assets...', 'Almost there...'];
+let progress = 0;
+const bar = document.getElementById('loader-bar');
+const statusEl = document.getElementById('loader-status');
+
+const loaderInterval = setInterval(() => {
+  progress += Math.random() * 14 + 4;
+  if (progress > 100) progress = 100;
+  bar.style.width = progress + '%';
+  statusEl.textContent = statuses[Math.min(Math.floor(progress / 22), statuses.length - 1)];
+  if (progress >= 100) {
+    clearInterval(loaderInterval);
+    statusEl.textContent = 'Access granted.';
+    setTimeout(() => {
+      clearInterval(matrixInterval);
+      document.getElementById('loader').classList.add('fade-out');
+    }, 600);
+  }
+}, 180);
+
+const bg = document.getElementById('grid-bg');
+const cellSize = 48;
+
+function buildGrid() {
+  const cols = Math.ceil(window.innerWidth / cellSize) + 1;
+  const rows = Math.ceil(window.innerHeight / cellSize) + 1;
+  bg.style.setProperty('--cols', cols);
+  bg.style.setProperty('--rows', rows);
+  bg.innerHTML = '';
+  for (let i = 0; i < cols * rows; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    bg.appendChild(cell);
+  }
+}
+
+buildGrid();
+window.addEventListener('resize', buildGrid);
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+function openEmbed(url, el) {
+  const title = typeof el === 'string' ? el : el.textContent;
+  const overlay = document.getElementById('overlay');
+  document.getElementById('embed-title').textContent = title;
+  document.getElementById('embed-frame').src = url;
+  overlay.style.display = 'flex';
+  overlay.className = 'overlay opening';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.className = 'overlay open';
+  }));
+}
+
+function closeEmbed() {
+  const overlay = document.getElementById('overlay');
+  overlay.className = 'overlay closing';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.className = 'overlay';
+    document.getElementById('embed-frame').src = '';
+    if (document.fullscreenElement) document.exitFullscreen();
+  }, 260);
+}
+
+function toggleFullscreen() {
+  const overlay = document.getElementById('overlay');
+  if (!document.fullscreenElement) {
+    overlay.requestFullscreen && overlay.requestFullscreen();
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEmbed(); });
+</script>
 </body>
-
 </html>
