@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UMBRA ENGINE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <canvas id="loader-canvas"></canvas>
+    <div id="loader-text">
+      <span id="loader-label">UMBRA ENGINE</span>
+      <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+      <span id="loader-status">INITIALIZING...</span>
+    </div>
+  </div>
+
+  <!-- MAIN SITE -->
+  <div id="site" class="hidden">
+
+    <!-- BACKGROUND CANVAS -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- HEADER -->
+    <header id="header">
+      <div id="logo">UMBRA<span>ENGINE</span></div>
+      <nav id="nav">
+        <button class="nav-btn active" data-section="games">GAMES</button>
+        <button class="nav-btn" data-section="media">MEDIA</button>
+        <button class="nav-btn" data-section="tools">TOOLS</button>
+      </nav>
+    </header>
+
+    <!-- SECTIONS -->
+    <main id="main">
+
+      <!-- GAMES -->
+      <section id="games" class="section active">
+        <div class="section-header">
+          <h1>GAMES</h1>
+          <p class="section-sub">SELECT A TITLE TO LAUNCH</p>
+        </div>
+        <div class="card-grid">
+          <div class="card" data-url="https://www.chess.com/play/computer" data-title="Chess.com">
+            <div class="card-glyph">♟</div>
+            <div class="card-name">CHESS</div>
+            <div class="card-desc">Play vs computer or online</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://www.coolmathgames.com/0-run-3" data-title="Run 3">
+            <div class="card-glyph">◈</div>
+            <div class="card-name">RUN 3</div>
+            <div class="card-desc">Tunnel runner, endless void</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://1v1.lol" data-title="1v1.LOL">
+            <div class="card-glyph">⌖</div>
+            <div class="card-name">1V1.LOL</div>
+            <div class="card-desc">Build and battle</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://www.google.com/logos/2010/pacman10-hp.html" data-title="Pac-Man">
+            <div class="card-glyph">◉</div>
+            <div class="card-name">PAC-MAN</div>
+            <div class="card-desc">Google Pac-Man doodle</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://minesweeper.online" data-title="Minesweeper">
+            <div class="card-glyph">⬡</div>
+            <div class="card-name">MINESWEEPER</div>
+            <div class="card-desc">Classic bomb defusal</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card placeholder">
+            <div class="card-glyph">+</div>
+            <div class="card-name">ADD GAME</div>
+            <div class="card-desc">Edit index.html to add</div>
+            <div class="card-launch">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MEDIA -->
+      <section id="media" class="section">
+        <div class="section-header">
+          <h1>MEDIA</h1>
+          <p class="section-sub">STREAM · WATCH · LISTEN</p>
+        </div>
+        <div class="card-grid">
+          <div class="card" data-url="https://www.youtube.com" data-title="YouTube">
+            <div class="card-glyph">▶</div>
+            <div class="card-name">YOUTUBE</div>
+            <div class="card-desc">Video platform</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://www.twitch.tv" data-title="Twitch">
+            <div class="card-glyph">◈</div>
+            <div class="card-name">TWITCH</div>
+            <div class="card-desc">Live streaming</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://open.spotify.com" data-title="Spotify">
+            <div class="card-glyph">◎</div>
+            <div class="card-name">SPOTIFY</div>
+            <div class="card-desc">Music streaming</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card placeholder">
+            <div class="card-glyph">+</div>
+            <div class="card-name">ADD MEDIA</div>
+            <div class="card-desc">Edit index.html to add</div>
+            <div class="card-launch">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLS -->
+      <section id="tools" class="section">
+        <div class="section-header">
+          <h1>TOOLS</h1>
+          <p class="section-sub">UTILITIES · RESOURCES</p>
+        </div>
+        <div class="card-grid">
+          <div class="card" data-url="https://www.wolframalpha.com" data-title="Wolfram Alpha">
+            <div class="card-glyph">∑</div>
+            <div class="card-name">WOLFRAM ALPHA</div>
+            <div class="card-desc">Computational intelligence</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://carbon.now.sh" data-title="Carbon">
+            <div class="card-glyph">⌗</div>
+            <div class="card-name">CARBON</div>
+            <div class="card-desc">Code screenshot tool</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://www.regex101.com" data-title="Regex101">
+            <div class="card-glyph">.*</div>
+            <div class="card-name">REGEX101</div>
+            <div class="card-desc">Regex tester and debugger</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card" data-url="https://crt.sh" data-title="crt.sh">
+            <div class="card-glyph">§</div>
+            <div class="card-name">CRT.SH</div>
+            <div class="card-desc">Certificate transparency</div>
+            <div class="card-launch">LAUNCH</div>
+          </div>
+          <div class="card placeholder">
+            <div class="card-glyph">+</div>
+            <div class="card-name">ADD TOOL</div>
+            <div class="card-desc">Edit index.html to add</div>
+            <div class="card-launch">—</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- EMBED OVERLAY -->
+    <div id="embed-overlay">
+      <div id="embed-container">
+        <div id="embed-bar">
+          <span id="embed-title">—</span>
+          <div id="embed-controls">
+            <button id="btn-fullscreen">FULLSCREEN</button>
+            <button id="btn-close">CLOSE</button>
+          </div>
+        </div>
+        <iframe id="embed-frame" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+      </div>
+    </div>
+
+  </div><!-- /#site -->
+
+  <script src="main.js"></script>
+</body>
+</html>
