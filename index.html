@@ -1,806 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Redvault</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --red: #e01010;
-    --red-dark: #8b0000;
-    --red-glow: rgba(224, 16, 16, 0.6);
-    --red-faint: rgba(224, 16, 16, 0.12);
-    --black: #080808;
-    --surface: #0f0f0f;
-    --surface2: #161616;
-    --text: #d4d4d4;
-    --text-dim: #666;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  /* CUSTOM CURSOR */
-  * { cursor: none !important; }
-
-  #cursor {
-    position: fixed;
-    top: 0; left: 0;
-    width: 28px; height: 28px;
-    pointer-events: none;
-    z-index: 999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.05s linear;
-  }
-  #cursor svg { width: 100%; height: 100%; }
-
-  /* LOADING SCREEN */
-  #loader {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-  }
-  #matrix-canvas {
-    position: absolute;
-    inset: 0;
-    opacity: 0.6;
-  }
-  .loader-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: clamp(2rem, 6vw, 4rem);
-    color: var(--red);
-    text-shadow: 0 0 30px var(--red-glow), 0 0 60px var(--red-glow);
-    position: relative;
-    z-index: 1;
-    letter-spacing: 0.05em;
-    animation: flicker 3s infinite;
-  }
-  .loader-bar-wrap {
-    width: min(320px, 70vw);
-    height: 3px;
-    background: #1a0000;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-  }
-  .loader-bar {
-    height: 100%;
-    background: var(--red);
-    box-shadow: 0 0 10px var(--red-glow);
-    width: 0;
-    animation: loadprog 2.2s cubic-bezier(0.4,0,0.2,1) forwards;
-  }
-  .loader-text {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.25em;
-    color: var(--red-dark);
-    position: relative;
-    z-index: 1;
-    text-transform: uppercase;
-  }
-  @keyframes loadprog {
-    0% { width: 0; }
-    60% { width: 75%; }
-    100% { width: 100%; }
-  }
-  @keyframes flicker {
-    0%,100% { opacity: 1; }
-    92% { opacity: 1; }
-    93% { opacity: 0.7; }
-    94% { opacity: 1; }
-    96% { opacity: 0.85; }
-    97% { opacity: 1; }
-  }
-
-  /* MAIN BODY */
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* STAR CANVAS */
-  #star-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* LAYOUT */
-  #app {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* HEADER */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 40px;
-    border-bottom: 1px solid #1a0000;
-    background: linear-gradient(180deg, rgba(8,0,0,0.95) 0%, transparent 100%);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(6px);
-  }
-  .site-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 1.7rem;
-    color: var(--red);
-    text-shadow: 0 0 18px var(--red-glow);
-    letter-spacing: 0.04em;
-    animation: flicker 6s infinite;
-  }
-
-  /* NAV */
-  nav {
-    display: flex;
-    gap: 6px;
-  }
-  .nav-btn {
-    background: none;
-    border: none;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    padding: 8px 20px;
-    position: relative;
-    transition: color 0.2s;
-    border: 1px solid transparent;
-  }
-  .nav-btn::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 50%;
-    width: 0; height: 1px;
-    background: var(--red);
-    transform: translateX(-50%);
-    transition: width 0.25s;
-  }
-  .nav-btn:hover { color: var(--text); }
-  .nav-btn:hover::after { width: 60%; }
-  .nav-btn.active {
-    color: var(--red);
-    border-color: #1a0000;
-    background: rgba(139,0,0,0.08);
-    text-shadow: 0 0 10px var(--red-glow);
-  }
-  .nav-btn.active::after { width: 70%; }
-
-  /* CONTENT */
-  .section {
-    display: none;
-    padding: 40px 40px 60px;
-    animation: sectionIn 0.4s ease;
-  }
-  .section.active { display: block; }
-  @keyframes sectionIn {
-    from { opacity: 0; transform: translateY(14px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .section-heading {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    color: var(--red-dark);
-    margin-bottom: 32px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #1a0000;
-  }
-
-  /* GRID */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-  }
-
-  /* ITEM CARD */
-  .game, .media-item, .tool {
-    background: var(--surface);
-    border: 1px solid #1c0000;
-    padding: 18px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--text);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .game::before, .media-item::before, .tool::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 40%, rgba(139,0,0,0.15));
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .game:hover, .media-item:hover, .tool:hover {
-    border-color: var(--red-dark);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(139,0,0,0.3), inset 0 0 20px rgba(139,0,0,0.05);
-  }
-  .game:hover::before, .media-item:hover::before, .tool:hover::before { opacity: 1; }
-  .game:active, .media-item:active, .tool:active { transform: translateY(0); }
-
-  /* EMBED OVERLAY */
-  #embed-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-  #embed-overlay.open {
-    display: flex;
-    animation: overlayIn 0.35s cubic-bezier(0.22,1,0.36,1);
-  }
-  #embed-overlay.closing {
-    animation: overlayOut 0.28s ease forwards;
-  }
-  @keyframes overlayIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes overlayOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-
-  #embed-container {
-    width: min(1100px, 94vw);
-    height: min(680px, 88vh);
-    background: #000;
-    border: 1px solid #2a0000;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 60px rgba(139,0,0,0.25), 0 0 120px rgba(139,0,0,0.1);
-    animation: embedIn 0.4s cubic-bezier(0.22,1,0.36,1);
-  }
-  #embed-overlay.closing #embed-container {
-    animation: embedOut 0.28s ease forwards;
-  }
-  @keyframes embedIn {
-    from { opacity: 0; transform: scale(0.94) translateY(16px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  @keyframes embedOut {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0.96) translateY(8px); }
-  }
-
-  .embed-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid #1c0000;
-    flex-shrink: 0;
-  }
-  #embed-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-  .embed-btns { display: flex; gap: 8px; }
-  .embed-btn {
-    background: none;
-    border: 1px solid #2a0000;
-    color: var(--text-dim);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    transition: all 0.18s;
-  }
-  .embed-btn:hover {
-    border-color: var(--red-dark);
-    color: var(--red);
-    background: rgba(139,0,0,0.1);
-  }
-  #embed-frame {
-    flex: 1;
-    border: none;
-    width: 100%;
-    background: #000;
-  }
-
-  /* FULLSCREEN state */
-  #embed-container.fs {
-    width: 100vw;
-    height: 100vh;
-    border: none;
-    border-radius: 0;
-    animation: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UMBRA ENGINE</title>
+  <meta name="description" content="UMBRA ENGINE — games, media, tools." />
+  <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
 
-<!-- CURSOR -->
-<div id="cursor">
-  <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="14" cy="14" r="12" stroke="#e01010" stroke-width="1.2" opacity="0.7"/>
-    <line x1="14" y1="2" x2="14" y2="10" stroke="#e01010" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="14" y1="18" x2="14" y2="26" stroke="#e01010" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="2" y1="14" x2="10" y2="14" stroke="#e01010" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="18" y1="14" x2="26" y2="14" stroke="#e01010" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="14" cy="14" r="1.5" fill="#e01010"/>
-  </svg>
-</div>
-
-<!-- LOADING SCREEN -->
-<div id="loader">
-  <canvas id="matrix-canvas"></canvas>
-  <div class="loader-title">Redvault</div>
-  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
-  <div class="loader-text">Initializing vault...</div>
-</div>
-
-<!-- STAR BACKGROUND -->
-<canvas id="star-canvas"></canvas>
-
-<!-- EMBED OVERLAY -->
-<div id="embed-overlay">
-  <div id="embed-container">
-    <div class="embed-bar">
-      <span id="embed-name">Loading</span>
-      <div class="embed-btns">
-        <button class="embed-btn" onclick="toggleFullscreen()">Fullscreen</button>
-        <button class="embed-btn" onclick="closeEmbed()">Close</button>
+  <!-- LOADER -->
+  <div id="loader">
+    <canvas id="loader-canvas"></canvas>
+    <div class="loader-content">
+      <div class="loader-title">UMBRA ENGINE</div>
+      <div class="loader-sub">INITIALIZING SYSTEMS...</div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar"></div>
       </div>
     </div>
-    <iframe id="embed-frame" src="" allowfullscreen></iframe>
   </div>
-</div>
 
-<!-- MAIN APP -->
-<div id="app">
-  <header>
-    <div class="site-title">Redvault</div>
+  <!-- BG CANVAS -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- EMBED OVERLAY -->
+  <div id="embed-overlay">
+    <div class="embed-window">
+      <div class="embed-bar">
+        <span class="embed-title" id="embed-title">—</span>
+        <div class="embed-controls">
+          <button class="embed-btn" id="btn-fullscreen">Fullscreen</button>
+          <button class="embed-btn danger" id="btn-close">Close</button>
+        </div>
+      </div>
+      <iframe id="embed-frame" src="about:blank" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+    </div>
+  </div>
+
+  <!-- SITE -->
+  <div class="site-wrap">
+
+    <!-- NAV -->
     <nav>
-      <button class="nav-btn active" onclick="switchTab('games', this)">Games</button>
-      <button class="nav-btn" onclick="switchTab('media', this)">Media</button>
-      <button class="nav-btn" onclick="switchTab('tools', this)">Tools</button>
+      <a class="nav-logo" href="#" onclick="return false;">UMBRA ENGINE</a>
+      <ul class="nav-links">
+        <li><a href="#" data-page="games">Games</a></li>
+        <li><a href="#" data-page="media">Media</a></li>
+        <li><a href="#" data-page="tools">Tools</a></li>
+      </ul>
+      <div class="nav-status"><span>●</span>ONLINE</div>
     </nav>
-  </header>
 
-  <!-- GAMES -->
-  <div class="section active" id="tab-games">
-    <div class="section-heading">Games</div>
-    <div class="grid">
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/1/index.html', '1')">1</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/2048/index.html', '2048')">2048 [v1.0]</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-space-cadet-pinball/', '3D Space Cadet Pinball')">3D Space Cadet Pinball (c) Microsoft</div>
-            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/angrybirds.html', 'Angry Birds')">Angry Birds [Classic Build]</div>
-            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/ragdollarcher.html', 'Angry Birds')">ARC</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/arthur.html', 'Arthurs Nightmare')">Arthurs Nightmare</div>
-            <div class="game" onclick="openEmbed('https://ascii-patrol.com/area54/ascii-patrol-html5.html', 'Ascii Patrol')">Ascii Patrol</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/balatro/index.html', 'Balatro')">Balatro [v1.0]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/467.html', 'Baldis Basics Plus')">Baldis Basics [Plus]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/bloodmoney/index.html', 'Bloodmoney')">Bloodmoney</div>
-            <div class="game" onclick="openEmbed('https://cojmar.github.io/bomberman/', 'Bomberdude')">Bomberdude</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/723.html', 'Brotato')">Brotato</div>
-            <div class="game" onclick="openEmbed('https://storage.googleapis.com/classroomx/bf.html', 'Burgers And Frights')">Burgers And Frights</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/buckshot-roulette/index.html', 'Buckshot Roulette')">Buckshot Roulette [v1.0]</div>
-            <div class="game" onclick="openEmbed('https://windows93.net/c/programs/games/CatMario/index.html', 'Cat Mario')">Cat Mario (Fan Port)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/716.html', 'Clover Pit')">Clover Pit</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/cookie-clicker/index.html', 'Cookie Clicker')">Cookie Clicker (c) Orteil</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/nzp/index.html', 'Cod Zombies')">Cod Zombies [Mod Build]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/grassycrossyroad/index.html', 'Crossy Road')">Crossy Road (c) Hipster Whale</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/cubefield/index.html', 'Cubefield')">Cubefield</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/kaimatten-delia-the-traveling-witch/web/index.html', 'Delia: The Traveling Witch')">Delia: The Traveling Witch</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/deltatraveler/index.html', 'Deltatraveler')">Deltatraveler [v0.9]</div>
-            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter1/index.html', 'Deltarune (Ch1)')">Deltarune Ch1 (c) Toby Fox</div>
-            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter2/index.html', 'Deltarune (Ch2)')">Deltarune Ch2 (c) Toby Fox</div>
-            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter3/index.html', 'Deltarune (Ch3)')">Deltarune Ch3 (c) Toby Fox</div>
-            <div class="game" onclick="openEmbed('https://selenite.cc/resources/semag/deltarune/chapter4/index.html', 'Deltarune (Ch4)')">Deltarune Ch4 (c) Toby Fox</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/chrome-dino/index.html', 'Dinosaur Game')">Dino (Offline Game)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/511.html', 'Doge Miner')">Doge Miner</div>
-            <div class="game" onclick="openEmbed('https://echoesoftheforgottenvale.github.io', 'Echoes Of The Forgotten Vale')">Echoes Of The Forgotten Vale</div>
-            <div class="game" onclick="openEmbed('https://jesus.churchinhuntsville.org/resources/semag/elevatorhitch/index.html', 'Elevator Hitch')">Elevator Hitch</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/286.html', 'Endoparasitic 1')">Endoparasitic 1</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/724.html', 'Endoparasitic 2')">Endoparasitic 2 [v1.1]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/585.html', 'Fallout 1')">Fallout 1 (c) Interplay</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/games/fo2/index.html', 'Fallout 2')">Fallout 2 (c) Interplay</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-fnaf/', 'FNAF collection')">FNAF Collection (c) Scott Cawthon</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/flappybird/index.html', 'Flappy Bird')">Flappy Bird (c) .GEARS</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/557.html', 'Getting Over It')">Getting Over It (c) Bennett Foddy</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/granny-1/index.html', 'Granny 1')">Granny 1 [v1.0]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/granny-2/index.html', 'Granny 2')">Granny 2 [v1.0]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/half-life/index.html', 'Half life')">Half Life (c) Valve</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/693.html', 'Half life: Opposing Force')">Half Life: Opposing Force (c) Gearbox</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/hexgl/index.html', 'HexGL')">HexGL</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/hollow-knight/index.html', 'Hollow Knight')">Hollow Knight (c) Team Cherry</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/idlebreakout/index.html', 'Idle Breakout')">Idle Breakout</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/779.html', 'I Have No Mouth, And I Must Scream')">I Have No Mouth, And I Must Scream</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/667.html', 'In Stars And Time')">In Stars And Time</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-jazz2/', 'Jazz Jackrabbit 2')">Jazz Jackrabbit 2 (c) Epic</div>
-            <div class="game" onclick="openEmbed('https://noredink.com.de/zones/h/justoneboss/', 'Just One Boss')">Just One Boss</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/542-a.html', 'Karlson')">Karlson</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/legostarwars.html', 'Lego Star Wars')">Lego Star Wars (c) LEGO</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=1&cheat=false', 'Lemmings')">Lemmings (Classic)</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-lemmings1/?version=1&difficulty=1&level=1&speed=2&cheat=true', 'Lemmings [ C H E A T S ]')">Lemmings (Cheat Mode)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/649.html', 'Look Outside')">Look Outside</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/level-devil/index.html', 'Level Devil')">Level Devil</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/599.html', 'Metal Gear Solid')">Metal Gear Solid (c) Konami</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/658.html', 'Midnight Shift')">Midnight Shift</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/minecraft-1.12/index.html', 'Minecraft 1.12')">Minecraft [v1.12]</div>
-            <div class="game" onclick="openEmbed('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-12-2/index.html', 'Minecraft 1.12.2')">Minecraft [v1.12.2]</div>
-            <div class="game" onclick="openEmbed('https://strawberrypoptarts.github.io/chilibowlflash/eagler1-8/index.html', 'Minecraft 1.8')">Minecraft [v1.8]</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglerexplore/index.html', Minecraft Modpack: Explore)">Minecraft Modpack: Explore</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglermagic/index.html', 'Minecraft Modpack: Magic')">Minecraft Modpack: Magic</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/eaglertechycraft/index.html', 'Minecraft Modpack: Tech')">Minecraft Modpack: Tech</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/undertale/index.html', Minesweeper Plus)">Minesweeper Plus</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/180.html', 'N-Gon')">N-Gon</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/omori/index.html', 'Omori')">OMORI (c) OMOCAT</div>
-            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/oneshotthing/', 'Oneshot')">Oneshot (Legacy Build)</div>
-            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/operius.html', 'OPERIUS')">OPERIUS</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/osu/index.html', 'Osu!')">osu! (c)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/ovo/index.html', 'OVO')">OVO</div>
-            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/particle-clicker/', 'Particle Clicker')">Particle Clicker</div>
-            <div class="game" onclick="openEmbed('https://harshulmoon.github.io/iframes/pizzatower.html', 'Pizza Tower')">Pizza Tower (c) Tour De Pizza</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/games/raft/index.html', 'Raft')">Raft</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/bippinbits-ravenhaul/index.html', 'Ravenhaul')">Ravenhaul</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/Sandboxels.html', 'Sandboxels')">Sandboxels</div>
-            <div class="game" onclick="openEmbed('https://kdata1.com/2022/12/santy-is-home1/', 'Santy Is Home')">Santy Is Home</div>
-            <div class="game" onclick="openEmbed('https://harshulsilverspoon.github.io/shogun.html/', 'Shogun Showdown')">Shogun Showdown</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/318.html', 'Side Effects')">Side Effects</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/games/slender/index.html', 'Slender: The Eight Pages')">Slender: The Eight Pages</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/796.html', 'Slendytubbies')">Slendytubbies</div>
-            <div class="game" onclick="openEmbed('https://kdata1.com/2021/10/slide-in-the-woods/', 'Slide In The Woods')">Slide In The Woods</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/591.html', 'Slime Rancher')">Slime Rancher</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-spelunky-classic/', 'Spelunky')">Spelunky (Classic)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/martintale-spirit-dungeons/index.html', 'Spirit Dungeons')">Spirit Dungeons</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/789.html', 'Stardew Valley')">Stardew Valley (c) ConcernedApe</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/games/nsmb/index.html', 'New Super Mario Bros')">New Super Mario Bros (c) Nintendo</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/smgds.html', 'Super Mario Galaxy')">Super Mario Galaxy (c) Nintendo</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/tboiw.html', 'The Binding of Isaac: WotL')">The Binding of Isaac: WotL</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/tloz.html', 'The Legend of Zelda: Ocarina of Time')">The Legend of Zelda: Ocarina of Time (c) Nintendo</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/games/there-is-no-game/index.html', 'There Is No Game')">There Is No Game</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/620.html', Three Goblets)">Three Goblets</div>
-            <div class="game" onclick="openEmbed('https://f.gamepofi.com/lr/undertale/', Underfell)">Underfell</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/undertale/index.html', 'UNDERTALE')">UNDERTALE (c) Toby Fox</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gn/718.html', 'Untitled Goose Game')">Untitled Goose Game (c)</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/evandahm-usurper-ghoul/web/index.html', 'USURPER GHOUL')">USURPER GHOUL</div>
-            <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/poncle-vampire-survivors/index.html', 'Vampire Survivors')">Vampire Survivors (c)</div>
-            <div class="game" onclick="openEmbed('https://truffled.lol/gamefile/wbwwb.html', 'We Become What We Behold')">We Become What We Behold</div>
-            <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/554.html', 'Yandere Simulator')">Yandere Simulator</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-yume-nikki/', 'Yume Nikki')">Yume Nikki</div>
+    <!-- GAMES PAGE -->
+    <div class="page" id="page-games">
+      <div class="hero">
+        <div class="hero-eyebrow">// module_01</div>
+        <h1 class="hero-title">GAME<br><span class="accent">SUITE</span></h1>
+        <p class="hero-desc">Browser-native. No installs. No clients. Click and run.</p>
+      </div>
+      <div class="section-divider"></div>
+      <div class="section-label">— AVAILABLE TITLES</div>
+      <div class="cards-grid" id="grid-games"></div>
     </div>
+
+    <!-- MEDIA PAGE -->
+    <div class="page" id="page-media">
+      <div class="hero">
+        <div class="hero-eyebrow">// module_02</div>
+        <h1 class="hero-title">MEDIA<br><span class="accent">FEED</span></h1>
+        <p class="hero-desc">Streaming</p>
+      </div>
+      <div class="section-divider"></div>
+      <div class="section-label">— AVAILABLE CHANNELS</div>
+      <div class="cards-grid" id="grid-media"></div>
+    </div>
+
+    <!-- TOOLS PAGE -->
+    <div class="page" id="page-tools">
+      <div class="hero">
+        <div class="hero-eyebrow">// module_03</div>
+        <h1 class="hero-title">TOOL<br><span class="accent">KIT</span></h1>
+        <p class="hero-desc">Utilities</p>
+      </div>
+      <div class="section-divider"></div>
+      <div class="section-label">— AVAILABLE TOOLS</div>
+      <div class="cards-grid" id="grid-tools"></div>
+    </div>
+
   </div>
 
-  <!-- MEDIA -->
-  <div class="section" id="tab-media">
-    <div class="section-heading">Media</div>
-    <div class="grid">
-            <div class="game" onclick="openEmbed('https://hianime.ms/', 'Anime [1]')">Animes 1</div>
-            <div class="game" onclick="openEmbed('https://40s-animeigen.com', 'Anime [2]')">Animes 2</div>
-            <div class="game" onclick="openEmbed('https://tv.emupedia.net', 'Cartoon TV')">Cartoons</div>
-            <div class="game" onclick="openEmbed('https://movies2020.online/', 'Movies [1]')">Movies 1</div>
-            <div class="game" onclick="openEmbed('https://dulo.tv/', 'Movies [2]')">Movies 2</div>
-    </div>
-  </div>
-
-  <!-- TOOLS -->
-  <div class="section" id="tab-tools">
-    <div class="section-heading">Tools</div>
-    <div class="grid">
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/', 8-bit palette color cycling)">8-bit palette color cycling</div>
-            <div class="game" onclick="openEmbed('https://98.js.org/', 'Windows 98')">98.js [v2.x]</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-fluid-paint/', 'Fluid Paint')">Fluid Paint</div>
-            <div class="game" onclick="openEmbed('https://cojmar.github.io/nsvg/', 'NSVG')">NSVG</div>
-            <div class="game" onclick="openEmbed('https://copy.sh/v86/?profile=serenity', 'SerenityOS')">SerenityOS</div>
-            <div class="game" onclick="openEmbed('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html', 'TTS Classic')">TTS Classic</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-demo-voxel-space/', 'Voxel Space')">Voxel Space</div>
-            <div class="game" onclick="openEmbed('https://win11.blueedge.me', 'Windows 11')">Windows 11 (Blue Edge)</div>
-            <div class="game" onclick="openEmbed('https://windows96.net/', 'Windows 96')">Windows 96 [Build 2.x]</div>
-            <div class="game" onclick="openEmbed('https://windows-xp.on.websim.com/', 'Windows XP')">Windows XP (c) Microsoft</div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ─── CURSOR ───────────────────────────────────────────────────────────────────
-const cursor = document.getElementById('cursor');
-let cx = window.innerWidth/2, cy = window.innerHeight/2;
-document.addEventListener('mousemove', e => {
-  cx = e.clientX; cy = e.clientY;
-  cursor.style.left = cx + 'px';
-  cursor.style.top = cy + 'px';
-});
-
-// ─── MATRIX RAIN ──────────────────────────────────────────────────────────────
-(function() {
-  const canvas = document.getElementById('matrix-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const cols = Math.floor(canvas.width / 18);
-  const drops = Array.from({length: cols}, () => Math.random() * -60);
-  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ';
-
-  function drawMatrix() {
-    ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.font = '13px monospace';
-    drops.forEach((y, i) => {
-      const ch = chars[Math.floor(Math.random() * chars.length)];
-      const alpha = Math.random() > 0.1 ? 0.5 : 1;
-      ctx.fillStyle = `rgba(160,0,0,${alpha})`;
-      ctx.fillText(ch, i * 18, y * 18);
-      if (y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i] += 0.4 + Math.random() * 0.3;
-    });
-  }
-  const matrixInterval = setInterval(drawMatrix, 45);
-
-  // Hide loader after 2.6s
-  setTimeout(() => {
-    const loader = document.getElementById('loader');
-    loader.style.transition = 'opacity 0.6s ease';
-    loader.style.opacity = '0';
-    setTimeout(() => {
-      loader.style.display = 'none';
-      clearInterval(matrixInterval);
-    }, 600);
-  }, 2600);
-})();
-
-// ─── STAR CANVAS ──────────────────────────────────────────────────────────────
-(function() {
-  const canvas = document.getElementById('star-canvas');
-  const ctx = canvas.getContext('2d');
-  let W = canvas.width = window.innerWidth;
-  let H = canvas.height = window.innerHeight;
-  let mx = W/2, my = H/2, lastMx = W/2, lastMy = H/2;
-  let mouseSpeed = 0;
-
-  window.addEventListener('resize', () => {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  });
-  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-  class Particle {
-    constructor(parent) {
-      this.parent = parent;
-      this.reset();
-    }
-    reset() {
-      this.angle = Math.random() * Math.PI * 2;
-      this.dist = 8 + Math.random() * 18;
-      this.life = Math.random();
-      this.maxLife = 0.4 + Math.random() * 0.6;
-      this.speed = 0.008 + Math.random() * 0.012;
-      this.size = 0.5 + Math.random() * 1.2;
-      this.drift = (Math.random() - 0.5) * 0.02;
-    }
-    update() {
-      this.life += this.speed;
-      this.angle += this.drift;
-      if (this.life >= this.maxLife) this.reset();
-    }
-    draw() {
-      const t = this.life / this.maxLife;
-      const alpha = Math.sin(t * Math.PI) * this.parent.alpha * 0.7;
-      const r = this.dist * (0.5 + t * 0.5);
-      const px = this.parent.x + Math.cos(this.angle) * r;
-      const py = this.parent.y + Math.sin(this.angle) * r;
-      ctx.beginPath();
-      ctx.arc(px, py, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,${60 + Math.floor(t*80)},${t*40},${alpha})`;
-      ctx.fill();
-    }
-  }
-
-  class Star {
-    constructor() { this.init(); }
-    init() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      this.size = 3 + Math.random() * 9;
-      this.baseSize = this.size;
-      this.alpha = 0.4 + Math.random() * 0.6;
-      this.baseAlpha = this.alpha;
-      this.vx = (Math.random() - 0.5) * 0.25;
-      this.vy = (Math.random() - 0.5) * 0.25;
-      this.angle = Math.random() * Math.PI * 2;
-      this.angleSpeed = (Math.random() - 0.5) * 0.008;
-      this.pulse = Math.random() * Math.PI * 2;
-      this.pulseSpeed = 0.012 + Math.random() * 0.018;
-      this.particles = Array.from({length: 3 + Math.floor(Math.random()*4)}, () => new Particle(this));
-    }
-    update() {
-      // Mouse repulsion
-      const dx = this.x - mx, dy = this.y - my;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      const repulse = 110;
-      if (dist < repulse) {
-        const force = (1 - dist/repulse) * 1.2 * (1 + mouseSpeed * 0.5);
-        this.vx += (dx/dist) * force * 0.06;
-        this.vy += (dy/dist) * force * 0.06;
-        this.alpha = Math.min(1, this.baseAlpha + (1 - dist/repulse) * 0.5);
-        this.size = this.baseSize + (1 - dist/repulse) * this.baseSize * 0.6;
-      } else {
-        this.alpha += (this.baseAlpha - this.alpha) * 0.04;
-        this.size += (this.baseSize - this.size) * 0.04;
-      }
-
-      this.pulse += this.pulseSpeed;
-      this.size = this.size * (0.97 + Math.sin(this.pulse) * 0.03);
-      this.alpha = this.alpha * (0.97 + Math.sin(this.pulse * 1.3) * 0.03);
-
-      this.vx *= 0.96;
-      this.vy *= 0.96;
-      this.x += this.vx;
-      this.y += this.vy;
-      this.angle += this.angleSpeed;
-
-      // Soft boundary bounce
-      const margin = 40;
-      if (this.x < margin) this.vx += 0.05;
-      if (this.x > W - margin) this.vx -= 0.05;
-      if (this.y < margin) this.vy += 0.05;
-      if (this.y > H - margin) this.vy -= 0.05;
-
-      this.particles.forEach(p => p.update());
-    }
-    draw() {
-      // Glow layers
-      const glow1 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3.5);
-      glow1.addColorStop(0, `rgba(220,30,30,${this.alpha * 0.3})`);
-      glow1.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size * 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = glow1;
-      ctx.fill();
-
-      const glow2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 1.8);
-      glow2.addColorStop(0, `rgba(255,90,90,${this.alpha * 0.5})`);
-      glow2.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size * 1.8, 0, Math.PI * 2);
-      ctx.fillStyle = glow2;
-      ctx.fill();
-
-      // 4-point star (sparkle shape)
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
-      ctx.globalAlpha = this.alpha;
-
-      const s = this.size;
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = `rgba(255,60,60,${this.alpha})`;
-
-      ctx.beginPath();
-      // outer 4 long points
-      for (let i = 0; i < 4; i++) {
-        const a = (i / 4) * Math.PI * 2;
-        const aN = ((i + 0.5) / 4) * Math.PI * 2;
-        if (i === 0) ctx.moveTo(Math.cos(a) * s, Math.sin(a) * s);
-        else ctx.lineTo(Math.cos(a) * s, Math.sin(a) * s);
-        ctx.lineTo(Math.cos(aN) * s * 0.22, Math.sin(aN) * s * 0.22);
-      }
-      ctx.closePath();
-
-      const grad = ctx.createRadialGradient(0,0,0,0,0,s);
-      grad.addColorStop(0, `rgba(255,200,200,${this.alpha})`);
-      grad.addColorStop(0.5, `rgba(220,40,40,${this.alpha * 0.9})`);
-      grad.addColorStop(1, `rgba(100,0,0,${this.alpha * 0.6})`);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // Inner tiny core
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 0.12, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,230,230,${this.alpha})`;
-      ctx.fill();
-
-      ctx.restore();
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
-
-      this.particles.forEach(p => p.draw());
-    }
-  }
-
-  const COUNT = 90;
-  const stars = Array.from({length: COUNT}, () => new Star());
-
-  function loop() {
-    ctx.clearRect(0,0,W,H);
-
-    // Mouse speed tracking
-    const dmx = mx - lastMx, dmy = my - lastMy;
-    mouseSpeed = Math.min(1, Math.sqrt(dmx*dmx + dmy*dmy) / 20);
-    lastMx = mx; lastMy = my;
-
-    stars.forEach(s => { s.update(); s.draw(); });
-    requestAnimationFrame(loop);
-  }
-  loop();
-})();
-
-// ─── TABS ─────────────────────────────────────────────────────────────────────
-function switchTab(name, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ─── EMBED ────────────────────────────────────────────────────────────────────
-function openEmbed(url, name) {
-  const overlay = document.getElementById('embed-overlay');
-  const frame = document.getElementById('embed-frame');
-  const container = document.getElementById('embed-container');
-  document.getElementById('embed-name').textContent = name || 'Viewer';
-  overlay.classList.remove('closing');
-  container.classList.remove('fs');
-  frame.src = url;
-  overlay.classList.add('open');
-}
-
-function closeEmbed() {
-  const overlay = document.getElementById('embed-overlay');
-  const container = document.getElementById('embed-container');
-  overlay.classList.add('closing');
-  container.classList.remove('fs');
-  setTimeout(() => {
-    overlay.classList.remove('open');
-    overlay.classList.remove('closing');
-    document.getElementById('embed-frame').src = '';
-  }, 300);
-}
-
-function toggleFullscreen() {
-  const container = document.getElementById('embed-container');
-  container.classList.toggle('fs');
-  const btn = document.querySelector('.embed-btn');
-}
-
-// Close on backdrop click
-document.getElementById('embed-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeEmbed();
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeEmbed();
-});
-</script>
+  <script src="js/canvas.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
