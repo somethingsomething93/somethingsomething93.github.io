@@ -44,16 +44,12 @@
     transition: opacity 0.6s ease, visibility 0.6s ease;
   }
   #loader.gone { opacity: 0; visibility: hidden; }
-
-  #loader-canvas {
-    position: absolute; inset: 0;
-  }
+  #loader-canvas { position: absolute; inset: 0; }
 
   .loader-inner {
     position: relative; z-index: 2;
     display: flex; flex-direction: column; align-items: center; gap: 18px;
   }
-
   .loader-name {
     font-family: var(--mono);
     font-size: clamp(1.4rem, 4vw, 2.2rem);
@@ -62,14 +58,12 @@
     text-shadow: 0 0 30px var(--umbra-bright), 0 0 60px var(--umbra);
     animation: flicker 1.8s infinite alternate;
   }
-
   .loader-sub {
     font-family: var(--mono);
     font-size: 0.68rem;
     letter-spacing: 0.2em;
     color: var(--dim);
   }
-
   .loader-bar-wrap {
     width: 220px; height: 2px;
     background: var(--border);
@@ -82,7 +76,6 @@
     animation: load-fill 1.8s cubic-bezier(0.4,0,0.2,1) forwards;
     box-shadow: 0 0 12px var(--umbra-glow);
   }
-
   @keyframes load-fill { to { width: 100%; } }
   @keyframes flicker {
     0%,100% { opacity: 1; } 85% { opacity: 0.85; } 90% { opacity: 0.6; } 93% { opacity: 0.9; }
@@ -98,7 +91,6 @@
   }
   #app.visible { opacity: 1; visibility: visible; }
 
-  /* background canvas */
   #bg-canvas {
     position: fixed; inset: 0; z-index: 0;
     pointer-events: none;
@@ -115,7 +107,6 @@
     backdrop-filter: blur(8px);
     flex-shrink: 0;
   }
-
   .site-name {
     font-family: var(--mono);
     font-size: 1.05rem;
@@ -123,11 +114,7 @@
     color: var(--umbra-glow);
     text-shadow: 0 0 18px var(--umbra-mid);
   }
-
-  nav {
-    display: flex; gap: 2px;
-  }
-
+  nav { display: flex; gap: 2px; }
   nav button {
     background: none; border: none; cursor: pointer;
     font-family: var(--mono); font-size: 0.7rem;
@@ -144,14 +131,11 @@
     background: var(--umbra-glow);
     transition: left 0.25s, right 0.25s, box-shadow 0.25s;
   }
-  nav button:hover, nav button.active {
-    color: var(--umbra-glow);
-  }
+  nav button:hover, nav button.active { color: var(--umbra-glow); }
   nav button:hover::after, nav button.active::after {
     left: 16px; right: 16px;
     box-shadow: 0 0 8px var(--umbra-glow);
   }
-
   .header-right {
     font-family: var(--mono); font-size: 0.62rem;
     color: var(--dim); letter-spacing: 0.1em;
@@ -167,8 +151,6 @@
     z-index: 5;
   }
   .section.active { display: block; }
-
-  /* scrollbar */
   .section::-webkit-scrollbar { width: 4px; }
   .section::-webkit-scrollbar-track { background: transparent; }
   .section::-webkit-scrollbar-thumb { background: var(--umbra); border-radius: 2px; }
@@ -201,7 +183,6 @@
     gap: 2px;
     max-width: 600px;
   }
-
   .game, .media, .tool {
     background: none;
     border: none;
@@ -227,16 +208,33 @@
   /* ── EMBED OVERLAY ── */
   #embed-overlay {
     position: fixed; inset: 0; z-index: 100;
-    background: rgba(5,5,8,0.92);
+    background: rgba(5,5,8,0.88);
     backdrop-filter: blur(4px);
-    display: flex; flex-direction: column;
+    display: flex; align-items: center; justify-content: center;
     opacity: 0; visibility: hidden;
-    transition: opacity 0.35s ease, visibility 0.35s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
   #embed-overlay.open { opacity: 1; visibility: visible; }
-  #embed-overlay.open #embed-frame-wrap {
+
+  #embed-container {
+    width: min(1100px, 94vw);
+    height: min(700px, 88vh);
+    display: flex; flex-direction: column;
+    border: 1px solid var(--umbra);
+    box-shadow: 0 0 40px rgba(61,31,110,0.5), 0 0 80px rgba(61,31,110,0.2);
+    background: var(--black);
+    transform: scale(0.96) translateY(14px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
+  }
+  #embed-overlay.open #embed-container {
     transform: scale(1) translateY(0);
     opacity: 1;
+  }
+  #embed-overlay.closing #embed-container {
+    transform: scale(0.97) translateY(8px);
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
   }
 
   #embed-bar {
@@ -246,47 +244,32 @@
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
-
   #embed-title {
     font-family: var(--mono); font-size: 0.7rem;
     letter-spacing: 0.18em; color: var(--muted);
     flex: 1;
   }
-
   .embed-btn {
     background: none; border: 1px solid var(--border);
     color: var(--muted); font-family: var(--mono);
     font-size: 0.62rem; letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 6px 14px; cursor: pointer;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    transition: border-color 0.2s, color 0.2s;
   }
   .embed-btn:hover { border-color: var(--umbra-mid); color: var(--umbra-glow); }
   .embed-btn.close-btn:hover { border-color: #6e1f1f; color: #e05a5a; }
 
-  #embed-frame-wrap {
-    flex: 1; position: relative;
-    transform: scale(0.97) translateY(12px);
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
-  }
+  #embed-frame-wrap { flex: 1; position: relative; overflow: hidden; }
+  #embed-frame { width: 100%; height: 100%; border: none; background: #000; }
 
-  #embed-frame {
-    width: 100%; height: 100%;
-    border: none;
-    background: #000;
+  /* fullscreen */
+  #embed-overlay.fullscreen #embed-container {
+    width: 100vw; height: 100vh;
+    border: none; box-shadow: none;
+    transform: none !important; opacity: 1 !important;
   }
-
-  /* fullscreen mode */
   #embed-overlay.fullscreen #embed-bar { display: none; }
-  #embed-overlay.fullscreen #embed-frame-wrap { position: fixed; inset: 0; z-index: 200; }
-
-  /* ── UTILS ── */
-  .tag-line {
-    font-family: var(--mono); font-size: 0.62rem;
-    letter-spacing: 0.12em; color: var(--border);
-    margin-top: 6px;
-  }
 </style>
 </head>
 <body>
@@ -319,7 +302,7 @@
   <section class="section active" id="sec-games">
     <div class="section-header">
       <h1>// games</h1>
-      <p>No installs. Play on browser.</p>
+      <p>No installs. Play right on browser.</p>
     </div>
     <div class="card-grid">
             <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/1/index.html', '1')">1</div>
@@ -448,7 +431,6 @@
             <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/', 8-bit palette color cycling)">8-bit palette color cycling</div>
             <div class="game" onclick="openEmbed('https://98.js.org/', 'Windows 98')">98.js [v2.x]</div>
             <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-fluid-paint/', 'Fluid Paint')">Fluid Paint</div>
-            <div class="game" onclick="openEmbed('https://jsoncrack.com/editor', 'JSONcrack')">JSONcrack</div>
             <div class="game" onclick="openEmbed('https://cojmar.github.io/nsvg/', 'NSVG')">NSVG</div>
             <div class="game" onclick="openEmbed('https://copy.sh/v86/?profile=serenity', 'SerenityOS')">SerenityOS</div>
             <div class="game" onclick="openEmbed('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html', 'TTS Classic')">TTS Classic</div>
@@ -461,21 +443,21 @@
 
   <!-- EMBED OVERLAY -->
   <div id="embed-overlay">
-    <div id="embed-bar">
-      <div id="embed-title">—</div>
-      <button class="embed-btn" id="btn-fullscreen">Fullscreen</button>
-      <button class="embed-btn close-btn" id="btn-close">Close</button>
-    </div>
-    <div id="embed-frame-wrap">
-      <iframe id="embed-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allowfullscreen></iframe>
+    <div id="embed-container">
+      <div id="embed-bar">
+        <div id="embed-title">—</div>
+        <button class="embed-btn" id="btn-fullscreen">Fullscreen</button>
+        <button class="embed-btn close-btn" id="btn-close">Close</button>
+      </div>
+      <div id="embed-frame-wrap">
+        <iframe id="embed-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allowfullscreen></iframe>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ───────────────────────────────────────────────
-   NAV
-─────────────────────────────────────────────── */
+/* ── NAV ── */
 document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -485,25 +467,27 @@ document.querySelectorAll('nav button').forEach(btn => {
   });
 });
 
-/* ───────────────────────────────────────────────
-   EMBED
-─────────────────────────────────────────────── */
-const overlay  = document.getElementById('embed-overlay');
-const frame    = document.getElementById('embed-frame');
+/* ── EMBED ── */
+const overlay    = document.getElementById('embed-overlay');
+const frame      = document.getElementById('embed-frame');
 const embedTitle = document.getElementById('embed-title');
 let isFS = false;
 
-function openEmbed(title, url) {
+function openEmbed(url, title) {
   frame.src = url;
   embedTitle.textContent = title.toUpperCase();
-  overlay.classList.remove('fullscreen');
+  overlay.classList.remove('fullscreen', 'closing');
   isFS = false;
+  document.getElementById('btn-fullscreen').textContent = 'Fullscreen';
   overlay.classList.add('open');
 }
 
 function closeEmbed() {
-  overlay.classList.remove('open');
-  setTimeout(() => { frame.src = ''; }, 400);
+  overlay.classList.add('closing');
+  setTimeout(() => {
+    overlay.classList.remove('open', 'closing');
+    frame.src = '';
+  }, 240);
 }
 
 document.getElementById('btn-close').addEventListener('click', closeEmbed);
@@ -514,6 +498,9 @@ document.getElementById('btn-fullscreen').addEventListener('click', () => {
   document.getElementById('btn-fullscreen').textContent = isFS ? 'Exit FS' : 'Fullscreen';
 });
 
+// click backdrop to close
+overlay.addEventListener('click', e => { if (e.target === overlay) closeEmbed(); });
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (isFS) { isFS = false; overlay.classList.remove('fullscreen'); document.getElementById('btn-fullscreen').textContent = 'Fullscreen'; }
@@ -521,31 +508,21 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ───────────────────────────────────────────────
-   CLOCK
-─────────────────────────────────────────────── */
-function tick() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toTimeString().slice(0,8);
-}
+/* ── CLOCK ── */
+function tick() { document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8); }
 tick(); setInterval(tick, 1000);
 
-/* ───────────────────────────────────────────────
-   LOADER CANVAS — scanning grid lines + data rain
-─────────────────────────────────────────────── */
+/* ── LOADER CANVAS ── */
 (function() {
   const cvs = document.getElementById('loader-canvas');
   const ctx = cvs.getContext('2d');
   let W, H, cols, drops, animId;
-
   function resize() {
     W = cvs.width = window.innerWidth;
     H = cvs.height = window.innerHeight;
     cols = Math.floor(W / 18);
     drops = Array.from({length: cols}, () => Math.random() * -H);
   }
-
   const chars = '01アイウエオカキクケコサシスセソタチツテト∆∇⊗⊕⊘';
   function draw() {
     ctx.fillStyle = 'rgba(5,5,8,0.18)';
@@ -561,29 +538,22 @@ tick(); setInterval(tick, 1000);
     });
     animId = requestAnimationFrame(draw);
   }
-
   resize();
   window.addEventListener('resize', resize);
   draw();
-
   window._stopLoader = () => cancelAnimationFrame(animId);
 })();
 
-/* ───────────────────────────────────────────────
-   BG CANVAS — mouse-reactive geometry
-─────────────────────────────────────────────── */
+/* ── BG CANVAS ── */
 (function() {
   const cvs = document.getElementById('bg-canvas');
   const ctx = cvs.getContext('2d');
   let W, H, mx = 0, my = 0, nodes = [];
-
   const NODE_COUNT = 55;
-
   function resize() {
     W = cvs.width = window.innerWidth;
     H = cvs.height = window.innerHeight;
   }
-
   function initNodes() {
     nodes = Array.from({length: NODE_COUNT}, () => ({
       x: Math.random() * W,
@@ -593,30 +563,21 @@ tick(); setInterval(tick, 1000);
       r: 1 + Math.random() * 1.5,
     }));
   }
-
   window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  window.addEventListener('resize', () => { resize(); });
-
+  window.addEventListener('resize', resize);
   function draw() {
     ctx.clearRect(0,0,W,H);
-
-    // update nodes
     nodes.forEach(n => {
       const dx = mx - n.x, dy = my - n.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 160) {
-        n.vx -= dx / dist * 0.04;
-        n.vy -= dy / dist * 0.04;
-      }
+      if (dist < 160) { n.vx -= dx / dist * 0.04; n.vy -= dy / dist * 0.04; }
       n.vx *= 0.994; n.vy *= 0.994;
       n.x += n.vx; n.y += n.vy;
-      if (n.x < 0) { n.x = 0; n.vx *= -1; }
-      if (n.x > W) { n.x = W; n.vx *= -1; }
-      if (n.y < 0) { n.y = 0; n.vy *= -1; }
-      if (n.y > H) { n.y = H; n.vy *= -1; }
+      if (n.x < 0)  { n.x = 0;  n.vx *= -1; }
+      if (n.x > W)  { n.x = W;  n.vx *= -1; }
+      if (n.y < 0)  { n.y = 0;  n.vy *= -1; }
+      if (n.y > H)  { n.y = H;  n.vy *= -1; }
     });
-
-    // draw edges
     const LINK_DIST = 130;
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i+1; j < nodes.length; j++) {
@@ -624,59 +585,43 @@ tick(); setInterval(tick, 1000);
         const dy = nodes[i].y - nodes[j].y;
         const d = Math.sqrt(dx*dx+dy*dy);
         if (d < LINK_DIST) {
-          const alpha = (1 - d/LINK_DIST) * 0.25;
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(90,45,158,${alpha})`;
+          ctx.strokeStyle = `rgba(90,45,158,${(1 - d/LINK_DIST) * 0.25})`;
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
       }
     }
-
-    // mouse connection lines
     nodes.forEach(n => {
       const dx = mx - n.x, dy = my - n.y;
       const d = Math.sqrt(dx*dx+dy*dy);
       if (d < 180) {
-        const alpha = (1 - d/180) * 0.5;
         ctx.beginPath();
         ctx.moveTo(n.x, n.y);
         ctx.lineTo(mx, my);
-        ctx.strokeStyle = `rgba(155,89,240,${alpha})`;
+        ctx.strokeStyle = `rgba(155,89,240,${(1 - d/180) * 0.5})`;
         ctx.lineWidth = 0.6;
         ctx.stroke();
       }
-    });
-
-    // draw nodes
-    nodes.forEach(n => {
-      const dx = mx - n.x, dy = my - n.y;
-      const d = Math.sqrt(dx*dx+dy*dy);
       const glow = d < 180 ? (1-d/180)*0.9 : 0.2;
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
       ctx.fillStyle = `rgba(123,63,212,${glow})`;
       ctx.fill();
     });
-
     requestAnimationFrame(draw);
   }
-
   resize(); initNodes(); draw();
 })();
 
-/* ───────────────────────────────────────────────
-   LOADER DISMISS
-─────────────────────────────────────────────── */
+/* ── LOADER DISMISS ── */
 window.addEventListener('load', () => {
   setTimeout(() => {
-    const loader = document.getElementById('loader');
-    loader.classList.add('gone');
+    document.getElementById('loader').classList.add('gone');
     window._stopLoader && window._stopLoader();
-    const app = document.getElementById('app');
-    app.classList.add('visible');
+    document.getElementById('app').classList.add('visible');
   }, 2200);
 });
 </script>
