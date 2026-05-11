@@ -4,321 +4,317 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UMBRA ENGINE</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #050508;
-    --deep: #0a0a10;
-    --surface: #0f0f18;
-    --border: #1a1a2e;
-    --umbra: #3d1f6e;
-    --umbra-mid: #5a2d9e;
-    --umbra-bright: #7b3fd4;
-    --umbra-glow: #9b59f0;
-    --dim: #4a4a6a;
-    --muted: #6b6b8a;
-    --text: #c8c8e0;
-    --text-bright: #e8e8f8;
-    --mono: 'Share Tech Mono', monospace;
-    --sans: 'Rajdhani', sans-serif;
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
-    width: 100%; height: 100%;
-    background: var(--black);
-    color: var(--text);
-    font-family: var(--sans);
-    overflow: hidden;
+    background: #0c0c0c;
+    color: #cccccc;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(12px, 1.3vw, 14px);
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  /* ── LOADER ── */
-  #loader {
-    position: fixed; inset: 0;
-    background: var(--black);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-  }
-  #loader.gone { opacity: 0; visibility: hidden; }
-  #loader-canvas { position: absolute; inset: 0; }
-
-  .loader-inner {
-    position: relative; z-index: 2;
-    display: flex; flex-direction: column; align-items: center; gap: 18px;
-  }
-  .loader-name {
-    font-family: var(--mono);
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    letter-spacing: 0.35em;
-    color: var(--umbra-glow);
-    text-shadow: 0 0 30px var(--umbra-bright), 0 0 60px var(--umbra);
-    animation: flicker 1.8s infinite alternate;
-  }
-  .loader-sub {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-    color: var(--dim);
-  }
-  .loader-bar-wrap {
-    width: 220px; height: 2px;
-    background: var(--border);
-    position: relative; overflow: hidden;
-  }
-  .loader-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--umbra), var(--umbra-glow));
-    width: 0;
-    animation: load-fill 1.8s cubic-bezier(0.4,0,0.2,1) forwards;
-    box-shadow: 0 0 12px var(--umbra-glow);
-  }
-  @keyframes load-fill { to { width: 100%; } }
-  @keyframes flicker {
-    0%,100% { opacity: 1; } 85% { opacity: 0.85; } 90% { opacity: 0.6; } 93% { opacity: 0.9; }
-  }
-
-  /* ── APP SHELL ── */
-  #app {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    opacity: 0; visibility: hidden;
-    transition: opacity 0.7s ease 0.1s, visibility 0.7s ease 0.1s;
-    overflow: hidden;
-  }
-  #app.visible { opacity: 1; visibility: visible; }
-
-  #bg-canvas {
-    position: fixed; inset: 0; z-index: 0;
+  #bg {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%;
+    z-index: 0;
     pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    color: #181818;
+    font-size: clamp(7px, 0.8vw, 10px);
+    line-height: 1.1;
+    white-space: pre;
   }
 
-  /* ── HEADER ── */
-  header {
-    position: relative; z-index: 10;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 40px;
-    height: 56px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(5,5,8,0.85);
-    backdrop-filter: blur(8px);
-    flex-shrink: 0;
-  }
-  .site-name {
-    font-family: var(--mono);
-    font-size: 1.05rem;
-    letter-spacing: 0.28em;
-    color: var(--umbra-glow);
-    text-shadow: 0 0 18px var(--umbra-mid);
-  }
-  nav { display: flex; gap: 2px; }
-  nav button {
-    background: none; border: none; cursor: pointer;
-    font-family: var(--mono); font-size: 0.7rem;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--muted);
-    padding: 8px 18px;
+  #app {
     position: relative;
-    transition: color 0.2s;
+    z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px clamp(8px, 2vw, 20px);
   }
-  nav button::after {
-    content: '';
-    position: absolute; bottom: 0; left: 50%; right: 50%;
-    height: 1px;
-    background: var(--umbra-glow);
-    transition: left 0.25s, right 0.25s, box-shadow 0.25s;
-  }
-  nav button:hover, nav button.active { color: var(--umbra-glow); }
-  nav button:hover::after, nav button.active::after {
-    left: 16px; right: 16px;
-    box-shadow: 0 0 8px var(--umbra-glow);
-  }
-  .header-right {
-    font-family: var(--mono); font-size: 0.62rem;
-    color: var(--dim); letter-spacing: 0.1em;
-  }
-  #clock { color: var(--muted); }
 
-  /* ── SECTIONS ── */
-  .section {
-    position: absolute; inset: 56px 0 0 0;
-    display: none;
-    overflow-y: auto;
-    padding: 40px 48px 60px;
-    z-index: 5;
+  #topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    color: #444;
+    flex-wrap: wrap;
+    gap: 4px;
   }
-  .section.active { display: block; }
-  .section::-webkit-scrollbar { width: 4px; }
-  .section::-webkit-scrollbar-track { background: transparent; }
-  .section::-webkit-scrollbar-thumb { background: var(--umbra); border-radius: 2px; }
+  #user-ip { color: #999; }
 
-  .section-header {
-    margin-bottom: 36px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
+  .logo {
+    white-space: pre;
+    color: #fff;
+    font-size: clamp(6px, 0.85vw, 11px);
+    line-height: 1.15;
+    margin-bottom: 4px;
   }
-  .section-header h1 {
-    font-family: var(--mono);
-    font-size: 0.7rem;
+  .logo-sub {
+    color: #555;
     letter-spacing: 0.3em;
-    color: var(--dim);
-    text-transform: uppercase;
+    font-size: 0.78em;
+    margin-bottom: 10px;
+  }
+
+  .div-line {
+    color: #333;
+    white-space: pre;
+    overflow: hidden;
+    line-height: 1;
+    font-size: clamp(9px, 1vw, 13px);
+  }
+
+  .nav { margin: 10px 0 0 0; }
+  .nav-tabs { display: flex; }
+  .nav-tab {
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-bottom: none;
+    color: #555;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(11px, 1.2vw, 13px);
+    padding: 4px 18px;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+  }
+  .nav-tab:hover { color: #ccc; }
+  .nav-tab.active { color: #fff; background: #111; border-color: #666; }
+  .nav-bottom {
+    color: #333;
+    white-space: pre;
+    overflow: hidden;
+    font-size: clamp(9px, 1vw, 12px);
+    line-height: 1;
+  }
+
+  .section { display: none; padding: 10px 0 0 0; }
+  .section.active { display: block; }
+
+  .sec-head {
+    color: #777;
+    font-size: 0.82em;
+    letter-spacing: 0.2em;
     margin-bottom: 6px;
   }
-  .section-header p {
-    font-family: var(--sans);
-    font-size: 0.85rem;
-    color: var(--muted);
-    font-weight: 300;
-    letter-spacing: 0.05em;
+
+  .btn-source { display: none; }
+
+  .pipe-grid {
+    font-size: clamp(9px, 1vw, 13px);
+    color: #333;
+    white-space: pre;
+    line-height: 1;
   }
 
-  /* ── ITEM LIST ── */
-  .card-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    max-width: 600px;
-  }
-  .game, .media, .tool {
+  .game, .media-item, .tool-item {
+    display: inline-block;
     background: none;
     border: none;
-    border-left: 2px solid var(--border);
-    padding: 11px 18px;
+    color: #bbb;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(11px, 1.2vw, 13px);
     cursor: pointer;
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    color: var(--muted);
     text-align: left;
-    display: block;
-    width: 100%;
-    transition: border-color 0.15s, color 0.15s, padding-left 0.15s;
-    user-select: none;
+    padding: 2px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    transition: transform 0.1s, color 0.1s;
   }
-  .game:hover, .media:hover, .tool:hover {
-    border-left-color: var(--umbra-glow);
-    color: var(--text-bright);
-    padding-left: 26px;
+  .game::before, .media-item::before, .tool-item::before {
+    content: '> ';
+    color: #444;
   }
-
-  /* ── EMBED OVERLAY ── */
-  #embed-overlay {
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(5,5,8,0.88);
-    backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+  .game:hover, .media-item:hover, .tool-item:hover {
+    color: #fff;
+    transform: scale(1.07);
+    transform-origin: left center;
   }
-  #embed-overlay.open { opacity: 1; visibility: visible; }
-
-  #embed-container {
-    width: min(1100px, 94vw);
-    height: min(700px, 88vh);
-    display: flex; flex-direction: column;
-    border: 1px solid var(--umbra);
-    box-shadow: 0 0 40px rgba(61,31,110,0.5), 0 0 80px rgba(61,31,110,0.2);
-    background: var(--black);
-    transform: scale(0.96) translateY(14px);
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
-  }
-  #embed-overlay.open #embed-container {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-  #embed-overlay.closing #embed-container {
-    transform: scale(0.97) translateY(8px);
-    opacity: 0;
-    transition: transform 0.22s ease, opacity 0.22s ease;
+  .game:hover::before, .media-item:hover::before, .tool-item:hover::before {
+    color: #999;
   }
 
-  #embed-bar {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 20px;
-    background: var(--deep);
-    border-bottom: 1px solid var(--border);
+  /* pipe row wrapper */
+  .pipe-row {
+    display: flex;
+    align-items: center;
+    line-height: 1.8;
+  }
+  .pipe-cell {
+    display: flex;
+    align-items: center;
+  }
+  .pipe-sep { color: #333; white-space: pre; flex-shrink: 0; }
+
+  /* embed */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  #overlay.open { display: flex; }
+  #ebox {
+    width: clamp(300px, 68vw, 960px);
+    height: clamp(220px, 62vh, 680px);
+    background: #0c0c0c;
+    border: 1px solid #555;
+    display: flex;
+    flex-direction: column;
+  }
+  #ebar {
+    background: #1a1a1a;
+    padding: 3px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-shrink: 0;
+    font-size: 0.82em;
+    border-bottom: 1px solid #333;
   }
-  #embed-title {
-    font-family: var(--mono); font-size: 0.7rem;
-    letter-spacing: 0.18em; color: var(--muted);
-    flex: 1;
+  #etitle { color: #fff; letter-spacing: 0.1em; }
+  #etitle::before { content: '[ '; color: #555; }
+  #etitle::after  { content: ' ]'; color: #555; }
+  .ebtn {
+    background: none;
+    border: 1px solid #444;
+    color: #999;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    padding: 1px 8px;
+    cursor: pointer;
+    margin-left: 6px;
   }
-  .embed-btn {
-    background: none; border: 1px solid var(--border);
-    color: var(--muted); font-family: var(--mono);
-    font-size: 0.62rem; letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 6px 14px; cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .embed-btn:hover { border-color: var(--umbra-mid); color: var(--umbra-glow); }
-  .embed-btn.close-btn:hover { border-color: #6e1f1f; color: #e05a5a; }
-
-  #embed-frame-wrap { flex: 1; position: relative; overflow: hidden; }
-  #embed-frame { width: 100%; height: 100%; border: none; background: #000; }
-
-  /* fullscreen */
-  #embed-overlay.fullscreen #embed-container {
-    width: 100vw; height: 100vh;
-    border: none; box-shadow: none;
-    transform: none !important; opacity: 1 !important;
-    position: relative;
-  }
-  #embed-overlay.fullscreen #embed-bar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 10;
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-  }
-  #embed-overlay.fullscreen #embed-container:hover #embed-bar {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-  }
+  .ebtn:hover { color: #fff; border-color: #aaa; }
+  #eframe { flex: 1; border: none; width: 100%; background: #000; }
+  #loader {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#matrix-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.18;
+}
+#loader-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+#loader-logo {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(5px, 1.1vw, 11px);
+  line-height: 1.15;
+  text-align: center;
+  text-shadow: 0 0 12px #888;
+  white-space: pre;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+#loader-bar-wrap {
+  width: clamp(200px, 40vw, 480px);
+  height: 3px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+}
+#loader-bar {
+  height: 100%;
+  width: 0%;
+  background: #ccc;
+  box-shadow: 0 0 8px #999;
+  transition: width 0.12s linear;
+}
+#loader-status {
+  color: #555;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(10px, 1.1vw, 13px);
+  letter-spacing: 0.25em;
+  min-height: 1.4em;
+}
+#loader.fade-out {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
 
-<!-- LOADER -->
 <div id="loader">
-  <canvas id="loader-canvas"></canvas>
-  <div class="loader-inner">
-    <div class="loader-name">UMBRA ENGINE</div>
-    <div class="loader-sub">INITIALIZING . . .</div>
-    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div id="loader-content">
+    <pre id="loader-logo"></pre>
+    <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+    <div id="loader-status">INITIALIZING...</div>
   </div>
 </div>
 
-<!-- APP -->
+<div id="bg" aria-hidden="true"></div>
+
 <div id="app">
-  <canvas id="bg-canvas"></canvas>
 
-  <header>
-    <div class="site-name">UMBRA ENGINE</div>
-    <nav>
-      <button class="active" data-section="games">Games</button>
-      <button data-section="media">Media</button>
-      <button data-section="tools">Tools</button>
-    </nav>
-    <div class="header-right"><span id="clock"></span></div>
-  </header>
+  <div id="topbar">
+    <span>UMBRA_ENGINE.EXE</span>
+    <span>IP: <span id="user-ip">resolving...</span></span>
+  </div>
 
-  <!-- GAMES -->
-  <section class="section active" id="sec-games">
-    <div class="section-header">
-      <h1>// games</h1>
-      <p>No installs. Play right on browser.</p>
+  <pre class="logo">
+ █    ██  ███▄ ▄███▓ ▄▄▄▄    ██▀███   ▄▄▄         ▓█████  ███▄    █   ▄████  ██▓ ███▄    █ ▓█████ 
+ ██  ▓██▒▓██▒▀█▀ ██▒▓█████▄ ▓██ ▒ ██▒▒████▄       ▓█   ▀  ██ ▀█   █  ██▒ ▀█▒▓██▒ ██ ▀█   █ ▓█   ▀ 
+▓██  ▒██░▓██    ▓██░▒██▒ ▄██▓██ ░▄█ ▒▒██  ▀█▄     ▒███   ▓██  ▀█ ██▒▒██░▄▄▄░▒██▒▓██  ▀█ ██▒▒███   
+▓▓█  ░██░▒██    ▒██ ▒██░█▀  ▒██▀▀█▄  ░██▄▄▄▄██    ▒▓█  ▄ ▓██▒  ▐▌██▒░▓█  ██▓░██░▓██▒  ▐▌██▒▒▓█  ▄ 
+▒▒█████▓ ▒██▒   ░██▒░▓█  ▀█▓░██▓ ▒██▒ ▓█   ▓██▒   ░▒████▒▒██░   ▓██░░▒▓███▀▒░██░▒██░   ▓██░░▒████▒
+░▒▓▒ ▒ ▒ ░ ▒░   ░  ░░▒▓███▀▒░ ▒▓ ░▒▓░ ▒▒   ▓▒█░   ░░ ▒░ ░░ ▒░   ▒ ▒  ░▒   ▒ ░▓  ░ ▒░   ▒ ▒ ░░ ▒░ ░
+░░▒░ ░ ░ ░  ░      ░▒░▒   ░   ░▒ ░ ▒░  ▒   ▒▒ ░    ░ ░  ░░ ░░   ░ ▒░  ░   ░  ▒ ░░ ░░   ░ ▒░ ░ ░  ░
+ ░░░ ░ ░ ░      ░    ░    ░   ░░   ░   ░   ▒         ░      ░   ░ ░ ░ ░   ░  ▒ ░   ░   ░ ░    ░   
+   ░            ░    ░         ░           ░  ░      ░  ░         ░       ░  ░           ░    ░  ░
+                          ░                                                                       </pre>
+  <div class="logo-sub">:: UNAUTHORIZED ACCESS PORTAL ::</div>
+
+  <div class="div-line" id="top-div"></div>
+
+  <div class="nav">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="show('games',this)">GAMES</button>
+      <button class="nav-tab" onclick="show('media',this)">MEDIA</button>
+      <button class="nav-tab" onclick="show('tools',this)">TOOLS</button>
     </div>
-    <div class="card-grid">
+    <div class="nav-bottom" id="nav-bot"></div>
+  </div>
+
+  <!-- ═══ GAMES ═══ -->
+  <div class="section active" id="sec-games">
+    <div class="sec-head">//  G A M E S</div>
+    <div class="div-line" id="g-div"></div>
+
+    <div class="btn-source" id="src-games">
             <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/1/index.html', '1')">1</div>
             <div class="game" onclick="openEmbed('https://www.eduwing.it.com/filestorage/gd/2048/index.html', '2048')">2048 [v1.0]</div>
             <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-space-cadet-pinball/', '3D Space Cadet Pinball')">3D Space Cadet Pinball (c) Microsoft</div>
@@ -419,228 +415,587 @@
             <div class="game" onclick="openEmbed('https://genizymath.github.io/iframe/554.html', 'Yandere Simulator')">Yandere Simulator</div>
             <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-game-yume-nikki/', 'Yume Nikki')">Yume Nikki</div>
     </div>
-  </section>
+    <div class="pipe-grid" id="grid-games"></div>
+  </div>
 
-  <!-- MEDIA -->
-  <section class="section" id="sec-media">
-    <div class="section-header">
-      <h1>// media</h1>
-      <p>Watch, stream.</p>
-    </div>
-    <div class="card-grid">
-            <div class="game" onclick="openEmbed('https://hianime.ms/', 'Anime [1]')">Animes 1</div>
-            <div class="game" onclick="openEmbed('https://40s-animeigen.com', 'Anime [2]')">Animes 2</div>
-            <div class="game" onclick="openEmbed('https://tv.emupedia.net', 'Cartoon TV')">Cartoons</div>
-            <div class="game" onclick="openEmbed('https://movies2020.online/', 'Movies [1]')">Movies 1</div>
-            <div class="game" onclick="openEmbed('https://dulo.tv/', 'Movies [2]')">Movies 2</div>
-    </div>
-  </section>
+  <!-- ═══ MEDIA ═══ -->
+  <div class="section" id="sec-media">
+    <div class="sec-head">//  M E D I A</div>
+    <div class="div-line" id="m-div"></div>
 
-  <!-- TOOLS -->
-  <section class="section" id="sec-tools">
-    <div class="section-header">
-      <h1>// tools</h1>
-      <p>Utilities.</p>
+    <div class="btn-source" id="src-media">
+            <div class="media-item" onclick="openEmbed('https://hianime.ms/', 'Anime [1]')">Animes 1</div>
+            <div class="media-item" onclick="openEmbed('https://40s-animeigen.com', 'Anime [2]')">Animes 2</div>
+            <div class="media-item" onclick="openEmbed('https://tv.emupedia.net', 'Cartoon TV')">Cartoons</div>
+            <div class="media-item" onclick="openEmbed('https://movies2020.online/', 'Movies [1]')">Movies 1</div>
+            <div class="media-item" onclick="openEmbed('https://dulo.tv/', 'Movies [2]')">Movies 2</div>
     </div>
-    <div class="card-grid">
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/', 8-bit palette color cycling)">8-bit palette color cycling</div>
-            <div class="game" onclick="openEmbed('https://98.js.org/', 'Windows 98')">98.js [v2.x]</div>
-            <div class="game" onclick="openEmbed('https://zarracsy.neocities.org', 'Copy Invisible text')">Copy invisible text</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-app-fluid-paint/', 'Fluid Paint')">Fluid Paint</div>
-            <div class="game" onclick="openEmbed('https://cojmar.github.io/nsvg/', 'NSVG')">NSVG</div>
-            <div class="game" onclick="openEmbed('https://copy.sh/v86/?profile=serenity', 'SerenityOS')">SerenityOS</div>
-            <div class="game" onclick="openEmbed('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html', 'TTS Classic')">TTS Classic</div>
-            <div class="game" onclick="openEmbed('https://emupedia.net/emupedia-demo-voxel-space/', 'Voxel Space')">Voxel Space</div>
-            <div class="game" onclick="openEmbed('https://win11.blueedge.me', 'Windows 11')">Windows 11 (Blue Edge)</div>
-            <div class="game" onclick="openEmbed('https://windows96.net/', 'Windows 96')">Windows 96 [Build 2.x]</div>
-            <div class="game" onclick="openEmbed('https://windows-xp.on.websim.com/', 'Windows XP')">Windows XP (c) Microsoft</div>
-    </div>
-  </section>
-  </section>
+    <div class="pipe-grid" id="grid-media"></div>
+  </div>
 
-  <!-- EMBED OVERLAY -->
-  <div id="embed-overlay">
-    <div id="embed-container">
-      <div id="embed-bar">
-        <div id="embed-title">—</div>
-        <button class="embed-btn" id="btn-fullscreen">Fullscreen</button>
-        <button class="embed-btn close-btn" id="btn-close">Close</button>
+  <!-- ═══ TOOLS ═══ -->
+  <div class="section" id="sec-tools">
+    <div class="sec-head">//  T O O L S</div>
+    <div class="div-line" id="t-div"></div>
+
+    <div class="btn-source" id="src-tools">
+            <div class="tool-item" onclick="openEmbed('https://emupedia.net/emupedia-app-8-bit-palette-color-cycling/', 8-bit palette color cycling)">8-bit palette color cycling</div>
+            <div class="tool-item" onclick="openEmbed('https://98.js.org/', 'Windows 98')">98.js [v2.x]</div>
+            <div class="tool-item" onclick="openEmbed('https://zarracsy.neocities.org', 'Copy Invisible text')">Copy invisible text</div>
+            <div class="tool-item" onclick="openEmbed('https://emupedia.net/emupedia-app-fluid-paint/', 'Fluid Paint')">Fluid Paint</div>
+            <div class="tool-item" onclick="openEmbed('https://cojmar.github.io/nsvg/', 'NSVG')">NSVG</div>
+            <div class="tool-item" onclick="openEmbed('https://copy.sh/v86/?profile=serenity', 'SerenityOS')">SerenityOS</div>
+            <div class="tool-item" onclick="openEmbed('https://windows93.net/c/programs/audio/voices/Dict%C3%A9e%20Magique/index.html', 'TTS Classic')">TTS Classic</div>
+            <div class="tool-item" onclick="openEmbed('https://emupedia.net/emupedia-demo-voxel-space/', 'Voxel Space')">Voxel Space</div>
+            <div class="tool-item" onclick="openEmbed('https://win11.blueedge.me', 'Windows 11')">Windows 11 (Blue Edge)</div>
+            <div class="tool-item" onclick="openEmbed('https://windows96.net/', 'Windows 96')">Windows 96 [Build 2.x]</div>
+            <div class="tool-item" onclick="openEmbed('https://windows-xp.on.websim.com/', 'Windows XP')">Windows XP (c) Microsoft</div>
+    </div>
+    <div class="pipe-grid" id="grid-tools"></div>
+  </div>
+
+  <div class="div-line" style="margin-top:14px;" id="bot-div"></div>
+
+</div>
+
+<!-- EMBED -->
+<div id="overlay">
+  <div id="ebox">
+    <div id="ebar">
+      <span id="etitle">LOADING</span>
+      <div>
+        <button class="ebtn" onclick="goFullscreen()">FULLSCREEN</button>
+        <button class="ebtn" onclick="closeEmbed()">CLOSE</button>
       </div>
-      <div id="embed-frame-wrap">
-        <iframe id="embed-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allowfullscreen></iframe>
-      </div>
     </div>
+    <iframe id="eframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"></iframe>
   </div>
 </div>
 
 <script>
-/* ── NAV ── */
-document.querySelectorAll('nav button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('sec-' + btn.dataset.section).classList.add('active');
-  });
-});
+// IP
+fetch('https://api.ipify.org?format=json')
+  .then(r => r.json())
+  .then(d => { document.getElementById('user-ip').textContent = d.ip; })
+  .catch(() => { document.getElementById('user-ip').textContent = 'UNKNOWN'; });
 
-/* ── EMBED ── */
-const overlay    = document.getElementById('embed-overlay');
-const frame      = document.getElementById('embed-frame');
-const embedTitle = document.getElementById('embed-title');
-let isFS = false;
+function buildGrid(srcId, gridId) {
+  const src  = document.getElementById(srcId);
+  const grid = document.getElementById(gridId);
+  const btns = Array.from(src.children);
+  if (!btns.length) return;
 
-function openEmbed(url, title) {
-  frame.src = url;
-  embedTitle.textContent = title.toUpperCase();
-  overlay.classList.remove('fullscreen', 'closing');
-  isFS = false;
-  document.getElementById('btn-fullscreen').textContent = 'Fullscreen';
-  overlay.classList.add('open');
-}
+  const appW = document.getElementById('app').clientWidth || 800;
+  const cols  = Math.max(1, Math.min(Math.floor(appW / 210), 4));
+  const cellW = Math.floor((appW - 20) / cols);
+  const rows  = Math.ceil(btns.length / cols);
 
-function closeEmbed() {
-  overlay.classList.add('closing');
-  setTimeout(() => {
-    overlay.classList.remove('open', 'closing');
-    frame.src = '';
-  }, 240);
-}
+  // pipe chars
+  const H = '═', V = '║';
+  const TL='╔', TR='╗', BL='╚', BR='╝', TM='╦', BM='╩', ML='╠', MR='╣', MM='╬', LM='╠', RM='╣';
 
-document.getElementById('btn-close').addEventListener('click', closeEmbed);
+  function hSegment() { return H.repeat(cellW - 2); }
 
-document.getElementById('btn-fullscreen').addEventListener('click', () => {
-  isFS = !isFS;
-  overlay.classList.toggle('fullscreen', isFS);
-  document.getElementById('btn-fullscreen').textContent = isFS ? 'Exit FS' : 'Fullscreen';
-});
-
-// click backdrop to close
-overlay.addEventListener('click', e => { if (e.target === overlay) closeEmbed(); });
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (isFS) { isFS = false; overlay.classList.remove('fullscreen'); document.getElementById('btn-fullscreen').textContent = 'Fullscreen'; }
-    else closeEmbed();
+  function borderRow(left, mid, right) {
+    let s = left;
+    for (let c = 0; c < cols; c++) {
+      s += hSegment();
+      s += c < cols - 1 ? mid : right;
+    }
+    return s;
   }
-});
 
-/* ── CLOCK ── */
-function tick() { document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8); }
-tick(); setInterval(tick, 1000);
+  grid.innerHTML = '';
 
-/* ── LOADER CANVAS ── */
-(function() {
-  const cvs = document.getElementById('loader-canvas');
-  const ctx = cvs.getContext('2d');
-  let W, H, cols, drops, animId;
-  function resize() {
-    W = cvs.width = window.innerWidth;
-    H = cvs.height = window.innerHeight;
-    cols = Math.floor(W / 18);
-    drops = Array.from({length: cols}, () => Math.random() * -H);
-  }
-  const chars = '01アイウエオカキクケコサシスセソタチツテト∆∇⊗⊕⊘';
-  function draw() {
-    ctx.fillStyle = 'rgba(5,5,8,0.18)';
-    ctx.fillRect(0,0,W,H);
-    ctx.font = '11px "Share Tech Mono", monospace';
-    drops.forEach((y, i) => {
-      const ch = chars[Math.floor(Math.random()*chars.length)];
-      const pct = i / cols;
-      const alpha = 0.12 + Math.sin(pct * Math.PI) * 0.1;
-      ctx.fillStyle = `rgba(90,45,158,${alpha + (Math.random() > 0.97 ? 0.6 : 0)})`;
-      ctx.fillText(ch, i * 18, y);
-      drops[i] = y > H + Math.random() * 200 ? -20 : y + 14;
-    });
-    animId = requestAnimationFrame(draw);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-  draw();
-  window._stopLoader = () => cancelAnimationFrame(animId);
-})();
+  // top border
+  const top = document.createElement('div');
+  top.style.cssText = 'color:#333;white-space:pre;line-height:1;font-size:inherit;';
+  top.textContent = borderRow(TL, TM, TR);
+  grid.appendChild(top);
 
-/* ── BG CANVAS ── */
-(function() {
-  const cvs = document.getElementById('bg-canvas');
-  const ctx = cvs.getContext('2d');
-  let W, H, mx = 0, my = 0, nodes = [];
-  const NODE_COUNT = 55;
-  function resize() {
-    W = cvs.width = window.innerWidth;
-    H = cvs.height = window.innerHeight;
-  }
-  function initNodes() {
-    nodes = Array.from({length: NODE_COUNT}, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random()-0.5) * 0.3,
-      vy: (Math.random()-0.5) * 0.3,
-      r: 1 + Math.random() * 1.5,
-    }));
-  }
-  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  window.addEventListener('resize', resize);
-  function draw() {
-    ctx.clearRect(0,0,W,H);
-    nodes.forEach(n => {
-      const dx = mx - n.x, dy = my - n.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 160) { n.vx -= dx / dist * 0.04; n.vy -= dy / dist * 0.04; }
-      n.vx *= 0.994; n.vy *= 0.994;
-      n.x += n.vx; n.y += n.vy;
-      if (n.x < 0)  { n.x = 0;  n.vx *= -1; }
-      if (n.x > W)  { n.x = W;  n.vx *= -1; }
-      if (n.y < 0)  { n.y = 0;  n.vy *= -1; }
-      if (n.y > H)  { n.y = H;  n.vy *= -1; }
-    });
-    const LINK_DIST = 130;
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i+1; j < nodes.length; j++) {
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const d = Math.sqrt(dx*dx+dy*dy);
-        if (d < LINK_DIST) {
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(90,45,158,${(1 - d/LINK_DIST) * 0.25})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-        }
+  for (let r = 0; r < rows; r++) {
+    // mid separator
+    if (r > 0) {
+      const mid = document.createElement('div');
+      mid.style.cssText = 'color:#333;white-space:pre;line-height:1;font-size:inherit;';
+      mid.textContent = borderRow(ML, MM, MR);
+      grid.appendChild(mid);
+    }
+
+    // content row
+    const rowEl = document.createElement('div');
+    rowEl.style.cssText = 'display:flex;align-items:stretch;line-height:1;';
+
+    for (let c = 0; c < cols; c++) {
+      // left pipe
+      const lp = document.createElement('span');
+      lp.style.cssText = 'color:#333;flex-shrink:0;display:flex;align-items:center;white-space:pre;';
+      lp.textContent = V + ' ';
+      rowEl.appendChild(lp);
+
+      const idx = r * cols + c;
+      if (idx < btns.length) {
+        const btn = btns[idx].cloneNode(true);
+        btn.style.width = (cellW - 4) + 'px';
+        btn.style.display = 'inline-block';
+        rowEl.appendChild(btn);
+      } else {
+        const blank = document.createElement('span');
+        blank.style.display = 'inline-block';
+        blank.style.width = (cellW - 4) + 'px';
+        rowEl.appendChild(blank);
+      }
+
+      // right pipe only on last column
+      if (c === cols - 1) {
+        const rp = document.createElement('span');
+        rp.style.cssText = 'color:#333;flex-shrink:0;display:flex;align-items:center;white-space:pre;';
+        rp.textContent = ' ' + V;
+        rowEl.appendChild(rp);
       }
     }
-    nodes.forEach(n => {
-      const dx = mx - n.x, dy = my - n.y;
-      const d = Math.sqrt(dx*dx+dy*dy);
-      if (d < 180) {
-        ctx.beginPath();
-        ctx.moveTo(n.x, n.y);
-        ctx.lineTo(mx, my);
-        ctx.strokeStyle = `rgba(155,89,240,${(1 - d/180) * 0.5})`;
-        ctx.lineWidth = 0.6;
-        ctx.stroke();
-      }
-      const glow = d < 180 ? (1-d/180)*0.9 : 0.2;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(123,63,212,${glow})`;
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  resize(); initNodes(); draw();
-})();
 
-/* ── LOADER DISMISS ── */
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('gone');
-    window._stopLoader && window._stopLoader();
-    document.getElementById('app').classList.add('visible');
-  }, 2200);
+    grid.appendChild(rowEl);
+  }
+
+  // bottom border
+  const bot = document.createElement('div');
+  bot.style.cssText = 'color:#333;white-space:pre;line-height:1;font-size:inherit;';
+  bot.textContent = borderRow(BL, BM, BR);
+  grid.appendChild(bot);
+}
+
+function buildAll() {
+  buildGrid('src-games', 'grid-games');
+  buildGrid('src-media', 'grid-media');
+  buildGrid('src-tools', 'grid-tools');
+}
+
+// Dividers
+function setDivs() {
+  const w = document.getElementById('app').clientWidth;
+  const len = Math.min(Math.max(Math.floor(w / 8.4) - 4, 20), 110);
+  const line = '╠' + '═'.repeat(len) + '╣';
+  ['top-div','g-div','m-div','t-div','bot-div'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = line;
+  });
+  document.getElementById('nav-bot').textContent =
+    '╚' + '═══╡ UMBRA_ENGINE ╞' + '═'.repeat(Math.max(len - 18, 4)) + '╝';
+  buildAll();
+}
+
+setDivs();
+window.addEventListener('resize', setDivs);
+
+// Nav
+function show(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Embed
+function openEmbed(url, title) {
+  document.getElementById('etitle').textContent = title.toUpperCase();
+  document.getElementById('eframe').src = url;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeEmbed() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('eframe').src = '';
+}
+function goFullscreen() {
+  const box = document.getElementById('ebox');
+  if (!document.fullscreenElement) box.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeEmbed();
 });
+
+// ASCII buildings
+(function() {
+  const bldgs = [
+`                                                                               
+                                      @%%                                      
+                                      %#%%                                     
+                                      %#%@%%@%                                 
+                                      @@@@@@@                                  
+                                      ***                                      
+                                      +++                                      
+                                      ++*                                      
+                                    %@*#%#                                     
+                                    *+*@@#                                     
+                                  @%*.:*%@@@                                   
+                                 %@#=.-#%%%@@                                  
+                                @%#+..***%%@@@                                 
+                               @%%*:-**###%%%@@@                               
+                             @%###+:=****##%%%@@@                              
+                           %@@%#**=:+***##%%%%%%@@                             
+                    @@@  @@%%*%#*+++*#####%%%%%**%@@@ %@@@                     
+                   @#+*@@@@*=-#@@@%#+--=+@@@@@%=+#%@@@#+#@@                    
+                   @%##%%##*+-+++++=..:::+*####**%%%%%%#%@%                    
+                   @@%#**++*++=-====--...:-+**##%%@%%@@@@@@                    
+                   @%#**++**++++==+++++++******###%%%%@@@@@                    
+                   @%#****##*******#%@##*#%%%%%%%@%@@@%%%%%                    
+                   @@%#%*+@@*+%@#+=#@@@+=@@@@#*@@%%@@@@%@@@                    
+                   @@%#@%%%@##@%##%%%**++#%@@@@%@%%%%@@%@@%                    
+                    @@@%@%@@#*#*+++***=%@%##%%%%@@%%%@@@@@                     
+                      @@%#****++++=--==%@#*****##%#%%%@@@                      
+                       %#*#**==+++---==%@#+++***%%##%%@@                       
+                       %#++%@@#==++=---+++*****+*%@@@%@@                       
+                       %#++%@@#++=--:::::-===+**#%@@%%@@                       
+                       %#++%@@#+++=======++++++**%@@@%@@                       
+                       %#+=+#%#===-:::::--====+++#%%%%@@                       
+                       #%#**##**+++++==+*****###%%@%@@@@                       
+                       @@%%%##*+++++++=-=***#%@%@@@@@@@@                       
+                       @@%###***+=+++*++**###%%@@@@@@@@@                       
+                       %#+++++==--:....:----==+++##%%%@@                       
+         #%% @@%@ %@@@%%%*++-:-=---::.*#%#=-==+*%@@@%%@@                       
+        #*#%#++*@*+++#%+*@#%*+%@#*=-:.%@@%+-==+*%@@%%%@@   %#  %@@@%           
+        %%@@*::-@@=.:*#=+%@@%%@%%#+-:.#@@@+-==+*#@@%%%@@%*+**=##%%%%           
+        ##+++..:*#--:=+-+%%%%%@%%#+-:.=+++=-==+#%%%%%%@@#*+++=**#%%%           
+        #*+=-....-:....-+%%%%%@%%#+-:....----==*#%%%%%@@#=.----+*#%%           
+        #*==-::::-::::--+%%%%%@@@%#**+===+****#%%%%@@@@@#=.----+*#%%           
+        %%@%%@@%%@@@%%@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+--=++**%%%           
+         @@%#@@%*@@@##@@@%%@%@@@@@%%@@%%@@%%%@@@%%@@@%@@@@@%%@@%%@@@           
+          @%%#%#########%@@%%@@%%%%@@@@@@@@@%@@@@@@@@%@@@%@%%@%%%%             
+            +**++++++++*#%%%%%%%%%##%%##%%%%%%%%%%%%%%%%%%###%%#               
+            ----+--=:.:=#%%%%%%####*+===+****########%%%%#***%%#               
+            -:..+%@#-.:=*#%%%%%###**+====+*****######%%%%#+=*%%#               
+            -:.:*%@#-.:=**%%%%%***+=--.:-==++***####%%%%%#+=*%%#               
+            --.-*%@%=::=**#%%%%*++==:...:-==+++***###%%%%#+=*%%#               
+            --..::::..:=***#%%%*++==:...:-==+++++*#####%%#+=*%%#               
+            --........:=*#%%%%%****+++++++++****%%@@@%%%%#+=*%%#               
+            -:........:=**#%%%%**+=--::-===+++**%@@@@%%%%#+=*%%#               
+            --::::::::-=**#%%%%**++====++++++***%%@@@%%%%#+=*%%#               
+            ----.:::::-=**%%%%%**++====:-=++****%%@@@#%%%#+=*%%#               
+            --:--:::..:=***#%%%*++==-:...-==++**#%%%%%%%%#***%%#               
+            ---::-:::::=***#%%%*++==-:...-==++*++==+#%%%%#***%%#               
+            ---:-::::::=****%%%*+++==-:::==+++**##%%%%%%%#***%%#               
+            =-----::--:-***#%%%*++=--::::-===++***###%%%%#***%%#               
+           %#--:-:::---=**##%%%*+++======+++++**####%%%%%#***%%#               
+         ##***++*++++==*%@@@@@@#++=--:::-==++++*#%%%%%%%%%###%%%%              
+         %%++#*******+==*@@@@@@%#%%#++*++#**#%#%%@%@@@@@@@%%%@@@@              
+          *############%@@@@@@@@%%######**##%##%%%@@@@@@@@@@@@@@@%             
+        *+==-:+=.+=.-=+*#%*#*%#%%%%##*%#*%%**#%**=#*%@##%@%@@@%@@@@@           
+        *+-::+-..:=:.-++*%#*##*#@%+-=::--:-:.-+=:::---=**#%%#%%%%%@@           
+       **++==+++==++=++*#%#%%%%%@%*++*=++=----=+++-=+++*###%%%#%%%%%@%         
+      +++++++=+++==++++*%%%%%%%%@@%#*++=+*++=+++**+++++*#####*#%%%%@@@@        
+     **+=++=+++=+++++++*%%%%%%%%@@%*+=+++=++**#*++++++++******#%#%%%%%@@%      
+     +*++******#####*++*%%**%#%%@@%#**=++++*******+*####*#####%#%%%%%#@@%      
+     +*%%%%%%%%%%##*%%%%%%%%%%%%@@%%%@##%@@@@%##%%%@@@@@%%%%%%%%%%%%%%%@%      
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    `,
+`                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                    %#                              
+                                    @%#%%                           
+                                    @%                              
+                                    @%:                             
+                                    @@%#=:::=                       
+                                    @@%*-%#@++:                     
+                                    @%%+=*++%%*                     
+                                    @@      -%                      
+                                  @%@@                              
+                                 %*+*%@%                            
+                                #--=+#%@@                           
+                              %@=:--+#%@@@                          
+                             *%#=-=+#%%@@@%                         
+                            %@@*--==*#%@@@@@                        
+                           %@%%:=#-=+#%%%@@@@                       
+                         %@@@%%==--=*#%%@@@@@@@                     
+                         @@@@%%*=-==*#%@@@@@@@@@                    
+                       %@@@%%%%+=====*%%%%@@@@@@@@                  
+                      @@%##*++=---------=**##%@@@@@                 
+                      @@@@@@@@@@@@@*%@+@@@@@@@@@@@%                 
+                      @@@#*+=-------%@+++**#%%%%@@%                 
+                      @@@%#**++++---%@+***##%%%@@@%                 
+                      @@@%#*+++==-:=++===++##%@@@@%                 
+                      @@%@%%%#@#@*%@@%#@%%%%@@@@@@                  
+                        @@@@%@#@#%%%#%@@@@@@@@@@@                   
+                        @##+==-=--===*%#%%@%@@@@@                   
+                        @=::=%%#-::::=+*#%%@%%@@@                   
+                        @=::+@@@-:::::-*%%%@@@@@@                   
+                        @+=-+@@@-::::--+#%%@@@@@@                   
+           @-#*-*%+@@   @+::+@@@-:*@#+*@@*%%@@%@@  @@%%%=@%%@@      
+           @:::::-*%@   @+---+++--##-::+#%@%%@%@@  @@++-=%#%@@      
+           @%%*+*%@@@%% @=-::::::-##+-+=*%@%#%%@@#%@@%@*#@@@@%      
+           %@+-:=%%@@%*+@+:-=+*+--#%=++*%@@@%%@%+%@%@#=-=%%@@       
+           %@+--=%%@*++#@+-=#%%@+-#*::-+#%@@%%@@%#%%%#--+#%@@       
+           %@+::-*%@=-=*@+:-#*#@=-%*:::=#%@@*%@@#+*%%*::-#%%@       
+           %@+::-#%@-:-+@+-+%####=%*::-+#%@@@%@@%##%%*::-#%@@       
+           %@+--+%@@=--+@*=::--::-%*-:=*%%@@#%@@%*#%@*--+%%%@       
+           %@=::-#%@%@@@@+==*%%%=-#*:::+#%@@@@@@@@@@@*::=#%%@       
+           %@=::-#%@@@@@@+=@@@@@@%#*:::+#%@@@@@@@@@@@#--=#%@@       
+           @@+--=%@@@@@@@#+%%#%#@@#*-=-*#%@@@@@@@@@%@%==*#%%@@      
+           %@%#%%@@@@@@@@%*@@@@@@@@%**#*%%%@@@@@@@@@@@%**%%%@%      
+                                                                    `,
+`                                                                  
+                          --                                      
+                          ##%%+=#*##                              
+                          **%#+=+#@@@@                            
+                          @@%###+#@@@@@%                          
+                          @@@%###*%@@@@@@%***                     
+                          *#                                      
+                          **                                      
+                         ###                                      
+                        **##%##                                   
+                      ##=-=*%%@%                                  
+                     %#*--=*#%@@%                                 
+                    %%*=:-+#%%@@@@@                               
+                   #%%*+:-+#%%@@@@@%                              
+                  %%%#=--=*##%%%@@@%                              
+                 #%##*-:-+###%%%@@@@@%                            
+                %%#+::-===+###%%#@@@@@                            
+               %@@#*=--===+#*#%%#@@@@@@%                          
+              @@%%#+-:-===+#%%##%%@@@@@@@                         
+            @@@@%%#+::-===*#%%##%%@@@@@@@@                        
+          %%@@@%#**=::---=+#*#%%#%%%@@@@@@@%                      
+        %@@@@@##*--::::::-+#*#%%#%##%%@@@@@@%                     
+       %@@@@@@%%#+++++++++#%#%%%%%%%%%@@@@@@@%@                   
+       %@@@@@@%@@%@@@@%@@%%@#@@@@%@@@@@@@@@@@@@%                  
+           %@@@@@@%%*+#%+##+%#%%*%%%%%@@@@@@                      
+            %%%##*++====++++==++++*####%@@                        
+            %%%%#*=======+***+==+*%%%%%%@@                        
+            %@%%%%%%%%##++++====++####@@@@                        
+            %@#%@@@@@@@@++*+====+*####@@@@                        
+            @@#%@@@@@@@@++++*+++*#%%%%@@@@                        
+            @@#%@@@@@@@@++==*+===+##*#@@@@                        
+            @@#%@@@@@@@@++==*+=+=+####@@@@                        
+            %%#%@%%%%%%@++==*+++=+####@@@@                        
+     @%#    %@%%%########*++#*++##%%%@@@@@    %@@@                
+     @%#    %%%#*=+++++==++=@#++*#@@@@@@@@    %%@@                
+     @%#*=:-+@%@*:::-+%*@#-=@#%%==::::%@@%---+@%@@                
+     @%#*+++***+====++++#*-=@#++*#+===##*+**#%%%@@                
+     @%#*#***++++###++++#+-=%*++*#%%%%***#**%%%%@@                
+     @%##%###*********##%*==%######%%######%@@@@@@                
+     @%%%@@@%@@@@@@@%%%%%%##@@@@@@@@@@@@@@@@@@@@@@                
+      #%@@%#*@++++%%*+++%%%%@#*+*#%%%#*#@@#%@@@%                  
+       %@@%#*@+---#%+=--%#**@#=-=+%%%**#@@#%@@@                   
+         %%#+#-----=----+*##*+===+***+*####%%#                    
+          %#=-:::::::::::=%%=----=====++*##@@                     
+          @#-::=++**-::::-==---=#%%%#*+**##@@                     
+          @#-:=#@@@@%#-::::::--=#@@@%***###@@                     
+          @#-:=#@@@@@#-:::::::-=#@@@%*++###@@                     
+@%*       @#-::-======-:::::::--++++++++###@@        *%@          
+@%*       @#-::::::::::::-**::::-----==+###@@        #%@          
+@%# #=-=%=-+#=-++:::*#--#+==%+--+%-:::##%%-=#%@@-:+@+#@@          
+@%#*%*++#*+*%*+**===##++%*-=@#**#%+==+####==%%@@**#%*#@@          
+@%*=+*#**####***#%%%++*+%*-=@#**+*%%%%**++%%@@%%@@@%@%@@          
+@%*++*##%%%%##%%#***#%%%%*-=@@%%%%####%%%%@@@@@@@%%%@%@@          
+@@%###%%@@@@@@@@%%%%%%%%@%#%@@@@@@@@@@@@@@@@@@@@@@@@@@@@          
+  %@@@@%%@%%%@%###%%@@###%%%@%%%%@%%%%@@%%@@%%@@@@@@@@            
+    @@%##@%##@#*==%#@%===*%#@%++%@##%%@%#%@@%%@@@@@               
+     %%%*%%#+=*+=-++%%=:=+**@#==#++*%%#*#%%#%@@@%                 
+      %%%@#*+===---=%#::=+##@#=---+*****#%##%@@%                  
+       %@@#*+=---:::::::=*%%+*=----===****##%@@                   
+        @@%*+-::::::::::-+##**=-::---=++*###%%                    
+        @@%*=-::::::::::::::::::::---=++*###@%                    
+        @@%##*+++=======+======++*****#####%@%                    
+        @@#*+++**====--=+=-:=-==*#====*#***%@%                    
+        @@#*+++**==++===++======*#+=++*#**#%@%                    
+        @@%##############*******##########%%@%                    
+        @@#*++-------:::::::--=======++*###%@%                    
+        @@#*+=-=++-::::::::::---:-:::-=+###%@%                    
+        @@#*+=*%@@%=:::::::::-+**#####%####%@%                    
+        @@%*==*%@@%+::::::::+*+=+#++**%%%##%@%                    
+        @@%*+=*####+::::::-=::*%%###%%%%@@%%@%                    
+        @@%*=-:::::::::::=+=-=##=++#@@@@%%@%@%                    
+        @@%*=-:::::::::::=++++#%##@@@@@@%%@%@%                    
+       %@%****++==-----=**++**##*#@@@@@%##@%@@@%                  
+       %@%++++*+====++++*+--==#%*%@@@@@%##@%@@@%                  
+      #%%#####*##*******++++**#%#%@@@@@@%#@%@@@%                  
+     @@%**++++=+*=+++===--====#%#%@@@@@@%%@%@@%@@@                
+     %%%%%@@@@%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@@@                
+                                                                  `,
+`                                                           +                                              
+                                                         ###                                              
+                                                       -####                                              
+                                                      -    #                                              
+                                                           #                                              
+                                                           #                                              
+                                              ++++         #                                              
+                                              ###+-        #    +--                                       
+                                              +            #    ####+-                                    
+                                              +            #    +                                         
+                                              +            #    +                                         
+                                              +            #    +                                         
+                                              +            #    +                                         
+                                              +            #    +                                         
+                                           +++#+ -++#  +++ +++- +-                                        
+                                   ++#+++++++++++++++++++++++++-++++#++++                                 
+                                   ++##++++++++++++++++++++++++++++++-++-                                 
+                                   +++++#####+##+#######+#++++++++++++-++                                 
+                                   ##############+####+#+#++#++#+####++++                                 
+                                     #####+######+######+++++++++-++++++                                  
+                                     ##+++#++#++++++++++++---+--++-++--                                   
+                                      +#+++++++++++++++++++-+++--+-++--                                   
+                                      +#+++++++++++++-++++-+-+++-+-+++-                                   
+                                      ++++++++-+++++-.-+++-+-+++-+-+--                                    
+                                      ++++++++-+++++- -+++-+-+++-+-+--                                    
+                                      ++++++++-+++++-.-+++-+-+++-+-+--                                    
+                                      ++++++++++++++++++++-+---+-+-+--                                    
+                                      ++++++++++++++++++++-+-----+-+--                                    
+                                      +++++++++++++++++++++++++--+++++- +                                 
+                                +##+#+++#++++++++++++++++++++++-+##+++-#++++                              
+                                ++####+++++++++++++++++++++++++---++++++++--                              
+                                ++++############+###########+++#++#+++++++--                              
+                                  ##############++#######+#++++++++++++++.                                
+                                   +#+##++#++#+++++++++++++++++++++++++++                                 
+                                    ++##++#++#+++++++++++++++-++++--++--                                  
+                                    ++#++++++++++++++++++++--------+++--                                  
+                                ++++++#++++++++++++++++++++--+++++--++++--+-                              
+                                +++++#+++++++++#+++++---+++-++++--+-+++++++                               
+                                 ##+++#+++++###+++++++##++++++##+++-++--+++                               
+                                  +#++#+++++###+++++-+-#+++-++##++--++++++                                
+                                  +#++#+++++###+++++++-++++-++##++--+++-+-                                
+                                  +#++#+++++###+++++-+-++++--+##++--+++-+-                                
+                                  +#++#+++++###+++++++-++++-++##+---+++---                                
+                                  ++++#++++++++++++++++++++++++++---+++---                                
+                                  ++++#+++++++++++++++++++++--------++---.                                
+                                 +++++####++++++++++++++++++++++++++++-----                               
+                         +        +++++++++++++++++++++++++-+--+-+--+-----                                
+                         +##+-    ++++#+++++++++++++++++++++++++++++++----                                
+                         -        +++++++++++++++++++++++++----+----+----.                                
+                         -        +++++++++##++++++++++++++---+-----+----.                                
+                         -        ++++#+++#++-+++++++++++++--++#+---+-----                                
+                         -        ++++++++++---++++++++++++---------+-----                                
+                         -        ++++++++++---++++++++++++----#+---+-----                                
+                         -        ++++#+++++---++++++++++++----#+---+-----                                
+                    ##++## +##+ ##+++++++#++++-++++++++++++----#+---+-----                                
+                    +#++##++##++##++#+++++++++.++++++++++++---------++----                                
+                    ##########+##++++++++++++++++++++++++++--+------+-----                                
+                    +++++++++++++++++++#+++++++++++++++++++---------+++---         ++++                   
+                   +##############++++##+++++++++++++++++++---------++----       ++++++++                 
+                    +#+##+#+++++++++########+++++++++++++++---------++----       ++++++++                 
+                    ++++-+#+++--++++++++++++++++++++++++++++--++----++----        ++++++-                 
+ +++                ++++-+#+++.-++++++++--++++++++++++++++++-++++--+++--+++- +++-++++++++                 
++                   +++#++#+++-++#++++++-+++++++++++++++++++++++++++++++++++++++++++++++                  
+                    ++++++#++###########+++++++##################++++++++++++++++++++-++                  
++++                +#######++#########++++++++#############+#++++++++++++++++++++##++++-                  
++    +             ++++++++++########++++++++++#+#+++#++++++++++++++++++++++++++###++++-                  
++#### +## +##+ ### ###++##++########++++++++++########+####+#+#+#++++#++++++++++###++++-                  
+      ###++++++++#++##############++++++++++++###################+#+#+#+#++++++###+++++-                  
+      ####+++++++#################++++++++++++###+++++#++++#+++++#++++#+++++++####+++++-                  
+       ###########################++++++++++++++++++++++++++++++++++++++++++++++###+++++                  
+       +++++++++##################+++++++++++++++++++++++-++++++++++++++++++++++###++++++                 
+       +++++++#++++++++++++++#####+++++++++++++++++++++++-++++--++++++++++++++++##++++++-                 
+       ++++++++++++#######++######++++++++++++++++++++++++++++--++++++++++++++++##+++++++                 
+     +++++++++######++############++++++++++++++++++#+++++++++++++++++++++++++++##+++++++                 
+    ++++++++++####+....+##########++++++++++++++######++++++++++++++++++++++++++##+++++++-                
+    ++++++++++###+-...-++#########++++++++++++++######+++#+++++++++++++++++#++++#+++++++++--++-           
+  ++#+++++++++###++...-+++########++++++####################+#+++++++++++++#++++#+#+++++++++++++++        
+ +++++++#########++...-++#########++++#######################+###++++#+++++#++++#+#+++++++++++++++ +- --  
+#################++-.-++############+#############++##################+++++##+++++#+++++++++++++++-+- -+  
+#################++-+##################++######################################++++++++++++++++++++++-++-+
+#####################################++##++#########++++++########################++##++++++++++++++++++++
++++#+#############################################+#++#+#########++++##################++#++++++++++++++++
+##++###+###########################################################+##############+++#######++++++++++++++
+######++++#########++###############################+++###++++++#####################+######++++++++++++++`
+  ];
+  const bg = document.getElementById('bg');
+  const count = Math.ceil(window.innerWidth / 100) + 4;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.textContent = bldgs[i % bldgs.length];
+    s.style.cssText = 'display:inline-block;vertical-align:bottom;margin:0 6px;user-select:none;-webkit-user-select:none;pointer-events:none;';
+    bg.appendChild(s);
+  }
+})();
+// ── LOADER ──
+(function () {
+  const LOGO =
+` █    ██  ███▄ ▄███▓ ▄▄▄▄    ██▀███   ▄▄▄         ▓█████  ███▄    █   ▄████  ██▓ ███▄    █ ▓█████ 
+ ██  ▓██▒▓██▒▀█▀ ██▒▓█████▄ ▓██ ▒ ██▒▒████▄       ▓█   ▀  ██ ▀█   █  ██▒ ▀█▒▓██▒ ██ ▀█   █ ▓█   ▀ 
+▓██  ▒██░▓██    ▓██░▒██▒ ▄██▓██ ░▄█ ▒▒██  ▀█▄     ▒███   ▓██  ▀█ ██▒▒██░▄▄▄░▒██▒▓██  ▀█ ██▒▒███   
+▓▓█  ░██░▒██    ▒██ ▒██░█▀  ▒██▀▀█▄  ░██▄▄▄▄██    ▒▓█  ▄ ▓██▒  ▐▌██▒░▓█  ██▓░██░▓██▒  ▐▌██▒▒▓█  ▄ 
+▒▒█████▓ ▒██▒   ░██▒░▓█  ▀█▓░██▓ ▒██▒ ▓█   ▓██▒   ░▒████▒▒██░   ▓██░░▒▓███▀▒░██░▒██░   ▓██░░▒████▒
+░▒▓▒ ▒ ▒ ░ ▒░   ░  ░░▒▓███▀▒░ ▒▓ ░▒▓░ ▒▒   ▓▒█░   ░░ ▒░ ░░ ▒░   ▒ ▒  ░▒   ▒ ░▓  ░ ▒░   ▒ ▒ ░░ ▒░ ░
+░░▒░ ░ ░ ░  ░      ░▒░▒   ░   ░▒ ░ ▒░  ▒   ▒▒ ░    ░ ░  ░░ ░░   ░ ▒░  ░   ░  ▒ ░░ ░░   ░ ▒░ ░ ░  ░
+ ░░░ ░ ░ ░      ░    ░    ░   ░░   ░   ░   ▒         ░      ░   ░ ░ ░ ░   ░  ▒ ░   ░   ░ ░    ░   
+   ░            ░    ░         ░           ░  ░      ░  ░         ░       ░  ░           ░    ░  ░
+                          ░                                                                       `;
+
+  const STEPS = [
+    [0.08,  'MOUNTING FILESYSTEM...'],
+    [0.22,  'LOADING CORE MODULES...'],
+    [0.38,  'BYPASSING FIREWALL...'],
+    [0.54,  'DECRYPTING PAYLOAD...'],
+    [0.70,  'INJECTING UMBRA KERNEL...'],
+    [0.85,  'SYNCHRONIZING NODES...'],
+    [1.00,  'ACCESS GRANTED'],
+  ];
+
+  const TOTAL = 4500;
+  const loader   = document.getElementById('loader');
+  const bar      = document.getElementById('loader-bar');
+  const status   = document.getElementById('loader-status');
+  const logoEl   = document.getElementById('loader-logo');
+  const canvas   = document.getElementById('matrix-canvas');
+  const ctx      = canvas.getContext('2d');
+
+  // Matrix rain
+  let cols, drops;
+  const CHARS = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ010!$*₴⋱⋰⋮⌖⋻⋸⨇⨊⨂⩸⫎⫍⫘⇉'.split('');
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols  = Math.floor(canvas.width / 14);
+    drops = Array(cols).fill(1);
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(0,0,0,0.13)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '13px Courier New';
+    drops.forEach((y, i) => {
+      const shade = Math.floor(Math.random() * 80 + 160);
+      ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
+      ctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], i * 14, y * 14);
+      if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+  }
+  const matrixInterval = setInterval(drawMatrix, 40);
+
+  // Show logo after short delay
+  setTimeout(() => { logoEl.textContent = LOGO; logoEl.style.opacity = 1; }, 200);
+
+  // Progress
+  const start = performance.now();
+  let stepIdx = 0;
+
+  function tick() {
+    const elapsed = performance.now() - start;
+    const pct = Math.min(elapsed / TOTAL, 1);
+    bar.style.width = (pct * 100) + '%';
+
+    while (stepIdx < STEPS.length && pct >= STEPS[stepIdx][0]) {
+      status.textContent = STEPS[stepIdx][1];
+      stepIdx++;
+    }
+
+    if (pct < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      clearInterval(matrixInterval);
+      loader.classList.add('fade-out');
+      setTimeout(() => loader.remove(), 500);
+    }
+  }
+  requestAnimationFrame(tick);
+})();
 </script>
 </body>
 </html>
